@@ -1,22 +1,19 @@
 package com.example.phamngocan.testmediaapp.Services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.CountDownTimer;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.RemoteViews;
 
 import com.example.phamngocan.testmediaapp.COMMON_FUNCTION.ShowLog;
@@ -24,18 +21,18 @@ import com.example.phamngocan.testmediaapp.Constant.Action;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
 import com.example.phamngocan.testmediaapp.R;
-import com.example.phamngocan.testmediaapp.ScanFileMp3;
 
 public class ForegroundService extends Service {
+
+    public final static String posKey = "abc";
 
     private final int REQUEST_CODE = 123;
     private final String CHANNEL_ID = "111";
     private final int FORE_ID = 321;
-    public final static String posKey = "abc";
-
+    private int pos;
     MediaPlayer mediaPlayer;
-    int pos;
-    int curSeek;
+
+
     RemoteViews remoteViews = new RemoteViews(MainActivity.PACKAGE_NAME, R.layout.content_notification);
 
     Notification notifiCustom;
@@ -67,28 +64,17 @@ public class ForegroundService extends Service {
             Log.d("AAA", "Intent null");
             return START_NOT_STICKY;
         }
+
+        String action = intent.getAction();
         pos = intent.getIntExtra(posKey, pos);
         ShowLog.logInfo("fore pos:  " ,pos);
 
-        String action = intent.getAction();
-        play(pos);
+        ShowLog.logInfo("action", action);
 
         if (action.compareTo(Action.START_FORE.getName()) == 0) {
 
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("content title")
-                    .setTicker("ticker")
-                    .setContentText("content type")
-                    .setSmallIcon(R.drawable.ic_launcher_background)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_mp3))
-                    .setOngoing(true)
-                    .setContentIntent(mainPending)
-                    .addAction(R.drawable.ic_prev, "Previous", prevPending)
-                    .addAction(R.drawable.ic_next, "Next", nextPending)
-                    .addAction(R.drawable.ic_play, "Play", pausePending)
-                    .build();
 
-
+            play(pos);
             startForeground(FORE_ID, notifiCustom);
 
 
@@ -113,13 +99,13 @@ public class ForegroundService extends Service {
         } else if (action.equals(Action.STOP.getName())) {
             Log.d("AAA", "stop");
 
-        } else if (action.equals(Action.PREVIOUS.getName())) {
-            Log.d("AAA", "prev");
+        } else if (action.equals(Action.NEXT.getName())) {
+            Log.d("AAA", "NEXT");
             pos = (pos + 1) % Instance.songList.size();
             play(pos);
 
-        } else if (action.equals(Action.NEXT.getName())) {
-            Log.d("AAA", "next");
+        } else if (action.equals(Action.PREVIOUS.getName())) {
+            Log.d("AAA", "PREV");
             if (pos == 0) {
                 pos = Instance.songList.size();
             }
@@ -162,13 +148,11 @@ public class ForegroundService extends Service {
     }
     private void resume(){
         if(mediaPlayer!=null){
-            mediaPlayer.seekTo(curSeek);
             mediaPlayer.start();
         }
     }
     private void  pause(){
         if(mediaPlayer!=null && mediaPlayer.isPlaying()){
-            curSeek = mediaPlayer.getDuration();
             mediaPlayer.pause();
         }
     }
@@ -176,6 +160,7 @@ public class ForegroundService extends Service {
     private void setupIntent() {
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
 
         noificationMainIntent = new Intent(this, MainActivity.class);
         noificationMainIntent.setAction(Action.MAIN.getName());
@@ -203,17 +188,26 @@ public class ForegroundService extends Service {
         nextIntent.setAction(Action.NEXT.getName());
         nextPending = PendingIntent.getService(this, REQUEST_CODE, nextIntent, 0);
 
+        NotificationChannel channel;
+
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+             channel = new NotificationChannel(CHANNEL_ID,"name",NotificationManager.IMPORTANCE_HIGH);
+
+            mNotificationManager.createNotificationChannel(channel);
+        }
 
         notifiCustom = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setOngoing(true)
-                .setContentIntent(mainPending).build();
+                .setContentIntent(mainPending)
+                .build();
 
         notifiCustom.bigContentView = remoteViews;
 
         remoteViews.setOnClickPendingIntent(R.id.notifi_next, nextPending);
         remoteViews.setOnClickPendingIntent(R.id.notifi_prev, prevPending);
-        remoteViews.setOnClickPendingIntent(R.id.notifi_play, playPending);
+        remoteViews.setOnClickPendingIntent(R.id.notifi_play, pausePending);
+
 
     }
 }

@@ -1,6 +1,5 @@
 package com.example.phamngocan.testmediaapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,46 +9,38 @@ import android.util.Log;
 import com.example.phamngocan.testmediaapp.COMMON_FUNCTION.ShowLog;
 import com.example.phamngocan.testmediaapp.Model.Song;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ScanFileMp3 {
     public static String file_path = "file_path", file_name = "file_name";
 
-    public static ArrayList<HashMap<String, String>> getPlayList(String directory) {
-        ArrayList<HashMap<String, String>> listFile = new ArrayList<>();
+    public static ArrayList<Song> queryFileInternal(Context context) {
+        ArrayList<Song> songList = new ArrayList<>();
+        Uri songUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC;
+ //       String[] selectionArgs = {".mp3"};
 
+        Cursor cursor = context.getContentResolver().query(songUri, null,
+                null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    songList.add(new Song(cursor));
+                    String type = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
+                    String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                    ShowLog.logInfo("title", name + "_" + type);
 
-        try {
-            File rootFile = new File(directory);
-            File[] files = rootFile.listFiles();
-
-            for (File f : files) {
-                if (f.isDirectory()) {
-                    ArrayList<HashMap<String, String>> t = getPlayList(f.getAbsolutePath());
-                    if (t != null) {
-                        listFile.addAll(t);
-                    } else {
-//                        break;
-                    }
-                } else {
-                    if (f.getName().endsWith(".mp3")) {
-                        HashMap<String, String> t = new HashMap<>();
-                        t.put(file_path, f.getAbsolutePath());
-                        t.put(file_name, f.getName());
-                        listFile.add(t);
-                    }
-                }
+                } while (cursor.moveToNext());
+                cursor.close();
             }
-            return listFile;
-        } catch (Exception e) {
-            Log.e("AAA", e.getMessage());
-            return null;
+        } else {
+            Log.d("AAA", "cursor nulll");
         }
+        return songList;
+
     }
 
-    public static ArrayList<Song> queryFile(Context context) {
+    public static ArrayList<Song> queryFileExternal(Context context) {
         ArrayList<Song> songList = new ArrayList<>();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         //String selection = MediaStore.Audio.Media.IS_MUSIC ;
@@ -60,6 +51,10 @@ public class ScanFileMp3 {
             if (cursor.moveToFirst()) {
                 do {
                     songList.add(new Song(cursor));
+
+                    String type = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
+                    String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                    ShowLog.logInfo("title", name + "_" + type);
 
                 } while (cursor.moveToNext());
                 cursor.close();
