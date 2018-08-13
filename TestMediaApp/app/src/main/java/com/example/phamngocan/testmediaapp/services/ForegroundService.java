@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Services;
+package com.example.phamngocan.testmediaapp.services;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,8 +16,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.example.phamngocan.testmediaapp.COMMON_FUNCTION.ShowLog;
-import com.example.phamngocan.testmediaapp.Constant.Action;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
 import com.example.phamngocan.testmediaapp.R;
@@ -29,7 +29,7 @@ public class ForegroundService extends Service {
     private final int REQUEST_CODE = 123;
     private final String CHANNEL_ID = "111";
     private final int FORE_ID = 321;
-    private int pos;
+    private static int pos;
     MediaPlayer mediaPlayer;
 
 
@@ -144,6 +144,15 @@ public class ForegroundService extends Service {
 
             mNotificationManager.notify(FORE_ID,notifiCustom);
             mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    ForegroundService.pos = (ForegroundService.pos + 1) % Instance.songList.size();
+
+                    play(ForegroundService.pos);
+
+                }
+            });
         }
     }
     private void resume(){

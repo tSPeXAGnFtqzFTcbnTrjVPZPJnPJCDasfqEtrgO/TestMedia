@@ -8,9 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.phamngocan.testmediaapp.Constant.Action;
-import com.example.phamngocan.testmediaapp.Services.ForegroundService;
-
 public class MainActivity extends AppCompatActivity {
 
     public static String PACKAGE_NAME;
@@ -28,10 +25,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void action() {
-        startActivity(new Intent(MainActivity.this,PlayerActivity.class));
-        Intent intent = new Intent(this, ForegroundService.class);
-        intent.setAction(Action.START_FORE.getName());
-        //startService(intent);
+        //startActivity(new Intent(MainActivity.this,PlayerActivity.class));
+        startActivity(new Intent(MainActivity.this,TabActivity.class));
+
     }
 
     private void prepareInstance() {

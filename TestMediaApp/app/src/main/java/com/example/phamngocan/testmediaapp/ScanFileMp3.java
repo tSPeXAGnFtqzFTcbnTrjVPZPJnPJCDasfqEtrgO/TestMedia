@@ -6,29 +6,31 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.example.phamngocan.testmediaapp.COMMON_FUNCTION.ShowLog;
-import com.example.phamngocan.testmediaapp.Model.Song;
+import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
 
 public class ScanFileMp3 {
     public static String file_path = "file_path", file_name = "file_name";
+    private static final String STR_TYPE = MediaStore.Audio.Media.ARTIST;
 
     public static ArrayList<Song> queryFileInternal(Context context) {
         ArrayList<Song> songList = new ArrayList<>();
         Uri songUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC;
- //       String[] selectionArgs = {".mp3"};
+        String selection = MediaStore.Audio.Media.DATA + " = ? ";
+        String[] selectionArgs = {""};
 
         Cursor cursor = context.getContentResolver().query(songUri, null,
-                null, null, null);
+                selection, selectionArgs, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     songList.add(new Song(cursor));
-                    String type = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
+                    String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    ShowLog.logInfo("title", name + "_" + type);
+                 //   ShowLog.logInfo("inter title", name + "_" + type);
+                  //  ShowLog.logInfo("",
+                    //        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)) );
 
                 } while (cursor.moveToNext());
                 cursor.close();
@@ -43,18 +45,22 @@ public class ScanFileMp3 {
     public static ArrayList<Song> queryFileExternal(Context context) {
         ArrayList<Song> songList = new ArrayList<>();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        //String selection = MediaStore.Audio.Media.IS_MUSIC ;
+        String selection = MediaStore.Audio.Media.TITLE + " LIKE ? " ;
+        String[] selectionArgs = {"%"};
 
         Cursor cursor = context.getContentResolver().query(songUri, null,
-                null, null, null);
+                selection, selectionArgs, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     songList.add(new Song(cursor));
 
-                    String type = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
+                    String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    ShowLog.logInfo("title", name + "_" + type);
+           //         ShowLog.logInfo("exter title", name + "_" + type);
+
+             //       ShowLog.logInfo("",
+               //            cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)) );
 
                 } while (cursor.moveToNext());
                 cursor.close();
@@ -62,6 +68,7 @@ public class ScanFileMp3 {
         } else {
             Log.d("AAA", "cursor nulll");
         }
+
         return songList;
 
     }

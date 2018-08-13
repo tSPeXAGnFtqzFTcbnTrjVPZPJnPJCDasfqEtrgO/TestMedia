@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Model;
+package com.example.phamngocan.testmediaapp.model;
 
 import android.database.Cursor;
 import android.provider.MediaStore;

@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Constant;
+package com.example.phamngocan.testmediaapp.constant;
 
 public enum Action {
     MAIN,

@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.COMMON_FUNCTION;
+package com.example.phamngocan.testmediaapp.function;
 
 import android.content.Context;
 import android.util.Log;
