@@ -131,7 +131,7 @@ public class ForegroundService extends Service {
         ShowLog.logInfo("path",Instance.songList.get(pos).getPath());
         int t = pos;
         do {
-            ShowLog.logInfo("fore",Instance.songList.get(pos).getName());
+            ShowLog.logInfo("fore",Instance.songList.get(pos).getNameVi());
             mediaPlayer = MediaPlayer.create(this, Uri.parse(Instance.songList.get(pos).getPath()));
             pos= (pos+1)%Instance.songList.size();
             ShowLog.logInfo("for mp",mediaPlayer);
@@ -139,8 +139,8 @@ public class ForegroundService extends Service {
         if(mediaPlayer!=null){
             pos=t;
             Log.d("a","playing");
-            remoteViews.setTextViewText(R.id.notifi_title,Instance.songList.get(pos).getName());
-            //remoteViews.setString(R.id.notifi_title,"",Instance.songList.get(pos).getName());
+            remoteViews.setTextViewText(R.id.notifi_title,Instance.songList.get(pos).getNameVi());
+            //remoteViews.setString(R.id.notifi_title,"",Instance.songList.get(pos).getNameVi());
 
             mNotificationManager.notify(FORE_ID,notifiCustom);
             mediaPlayer.start();

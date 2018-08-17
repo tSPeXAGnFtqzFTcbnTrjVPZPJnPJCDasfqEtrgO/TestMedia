@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.example.phamngocan.testmediaapp.function.ConvertLanguage;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class ScanFileMp3 {
                     songList.add(new Song(cursor));
                     String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                 //   ShowLog.logInfo("inter title", name + "_" + type);
+                    ShowLog.logInfo("inter title", ConvertLanguage.convert(name) + "_" + type);
                   //  ShowLog.logInfo("",
                     //        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)) );
 
@@ -57,9 +59,10 @@ public class ScanFileMp3 {
 
                     String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-           //         ShowLog.logInfo("exter title", name + "_" + type);
+                    ShowLog.logInfo("inter title", songList.get(songList.size()-1).getNameSearch());
 
-             //       ShowLog.logInfo("",
+
+                    //       ShowLog.logInfo("",
                //            cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)) );
 
                 } while (cursor.moveToNext());

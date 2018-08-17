@@ -56,8 +56,8 @@ public class MyIndicatorView extends View implements IndicatorInterface, ViewPag
         mRadiusSelect = typedArray.getFloat(R.styleable.MyIndicatorView_indi_radius_select, DEFAULT_RADIUS_SELECT);
         mRadiusUnselect = typedArray.getFloat(R.styleable.MyIndicatorView_indi_radius_unselect, DEFAULT_RADIUS_UNSELECT);
         mDistanceDot = typedArray.getDimensionPixelSize(R.styleable.MyIndicatorView_indi_distance, DEFAULT_DISTANCE_DOT);
-        mColorSelect = typedArray.getColor(R.styleable.MyIndicatorView_indi_color_select, Color.parseColor("#0B151B"));
-        mColorUnselect = typedArray.getColor(R.styleable.MyIndicatorView_indi_color_unselect, Color.parseColor("#0891E1"));
+        mColorSelect = typedArray.getColor(R.styleable.MyIndicatorView_indi_color_select, Color.parseColor("#3640E1"));
+        mColorUnselect = typedArray.getColor(R.styleable.MyIndicatorView_indi_color_unselect, Color.parseColor("#FFFFFF"));
 
         }finally {
             typedArray.recycle();

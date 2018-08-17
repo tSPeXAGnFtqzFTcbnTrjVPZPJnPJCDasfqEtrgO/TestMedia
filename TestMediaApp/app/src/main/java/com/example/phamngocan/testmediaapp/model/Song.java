@@ -3,13 +3,19 @@ package com.example.phamngocan.testmediaapp.model;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.example.phamngocan.testmediaapp.function.ConvertLanguage;
+
 public class Song {
 
-    private String name,path,artistName,albumName;
+    private String nameVi,path,artistName,albumName,nameEn;
+    private String nameSearch;
     private int id,artistId,albumId;
 
     public Song(Cursor cursor) {
-        name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+        nameVi = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+        nameVi = nameVi.trim();
+        nameEn  = ConvertLanguage.convert(nameVi);
+        nameSearch = nameEn.replaceAll(" ","" );
 
         id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
 
@@ -25,8 +31,8 @@ public class Song {
 
     }
 
-    public String getName() {
-        return name;
+    public String getNameVi() {
+        return nameVi;
     }
 
     public String getPath() {
@@ -51,5 +57,13 @@ public class Song {
 
     public int getAlbumId() {
         return albumId;
+    }
+
+    public String getNameEn() {
+        return nameEn;
+    }
+
+    public String getNameSearch() {
+        return nameSearch;
     }
 }
