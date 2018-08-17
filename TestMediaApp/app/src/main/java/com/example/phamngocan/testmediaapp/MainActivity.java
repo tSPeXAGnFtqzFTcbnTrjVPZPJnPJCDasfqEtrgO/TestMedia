@@ -111,9 +111,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 .debounce(300, TimeUnit.MILLISECONDS )
                 //.filter(s -> !s.isEmpty())
                 .distinctUntilChanged()
-                .switchMap((Function<String, ObservableSource<String>>) s -> {
-                    return Observable.just(s);
-                })
+                .switchMap((Function<String, ObservableSource<String>>) s -> Observable.just(s))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Observer<String>() {
@@ -145,8 +143,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         adapterSearch = new SearchAdapter(Instance.songList,getApplicationContext());
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
-        //startActivity(new Intent(MainActivity.this,PlayerActivity.class));
-        startActivity(new Intent(MainActivity.this,TabActivity.class));
+
+        //Intent intent = new Intent(MainActivity.this,TabActivity.class);
+        Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        startActivity(intent);
 
         String s = "abx";
 

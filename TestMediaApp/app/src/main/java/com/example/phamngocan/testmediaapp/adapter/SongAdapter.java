@@ -4,12 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.phamngocan.testmediaapp.Animation.Translate;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.model.Song;
@@ -45,6 +46,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.Holder> {
         }else{
             holder.name.setText(songs.get(position).getNameEn());
         }
+        Translate.setAnim(holder.itemView);
 
 
     }
@@ -57,18 +59,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.Holder> {
 
     class Holder extends RecyclerView.ViewHolder {
         TextView name;
-         public Holder(View itemView) {
+         Holder(View itemView) {
              super(itemView);
              name = itemView.findViewById(R.id.item_name);
 
-             name.setMovementMethod(new ScrollingMovementMethod());
              itemView.setOnClickListener(v -> {
 
                  int pos = getLayoutPosition();
+
                  Intent intent  = new Intent(context, ForegroundService.class);
                  intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                  intent.putExtra(ForegroundService.posKey,pos);
                  intent.setAction(Action.START_FORE.getName());
+
+                 Log.d("AAA","recycler "+pos );
                  context.startService(intent);
              });
 
