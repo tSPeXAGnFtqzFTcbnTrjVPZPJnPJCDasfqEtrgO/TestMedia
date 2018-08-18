@@ -27,7 +27,7 @@ public class ScanFileMp3 {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    songList.add(new Song(cursor));
+                    songList.add(new Song(cursor,songList.size()));
                     String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     ShowLog.logInfo("inter title", ConvertLanguage.convert(name) + "_" + type);
@@ -55,7 +55,7 @@ public class ScanFileMp3 {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    songList.add(new Song(cursor));
+                    songList.add(new Song(cursor,songList.size()));
 
                     String type = cursor.getString(cursor.getColumnIndex(STR_TYPE));
                     String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));

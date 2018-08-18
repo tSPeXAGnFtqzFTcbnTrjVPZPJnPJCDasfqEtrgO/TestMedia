@@ -16,15 +16,26 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
 import com.example.phamngocan.testmediaapp.R;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class ForegroundService extends Service {
 
     public final static String posKey = "abc";
+    public final static String curTimeKey = "curTimeKey";
+    public final static String totalTimeKey = "totalTimeKey";
+    public final static String nameSong = "nameSong";
 
     private final int REQUEST_CODE = 123;
     private final String CHANNEL_ID = "111";
@@ -40,6 +51,7 @@ public class ForegroundService extends Service {
     PendingIntent mainPending, playPending, pausePending, stopPending, prevPending, nextPending;
     NotificationManager mNotificationManager;
 
+    Intent intentBroadcast;
 
     @Nullable
     @Override
@@ -48,11 +60,23 @@ public class ForegroundService extends Service {
     }
 
     @Override
+    public boolean onUnbind(Intent intent) {
+        super.onUnbind(intent);
+        return true;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
 
         Log.d("AAA", "create");
         setupIntent();
+        updateTime();
     }
 
     @Override
@@ -218,5 +242,39 @@ public class ForegroundService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.notifi_play, pausePending);
 
 
+        intentBroadcast = new Intent();
+    }
+
+
+    private void updateTime(){
+        io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS )
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Long aLong) {
+                        if(mediaPlayer!=null){
+                            intentBroadcast.setAction(ActionBroadCast.CURSEEK.getName());
+                            intentBroadcast.putExtra(nameSong, Instance.songList.get(pos).getNameVi());
+                            intentBroadcast.putExtra(curTimeKey,mediaPlayer.getCurrentPosition() );
+                            intentBroadcast.putExtra(totalTimeKey,mediaPlayer.getDuration() );
+                            sendBroadcast(intentBroadcast);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }

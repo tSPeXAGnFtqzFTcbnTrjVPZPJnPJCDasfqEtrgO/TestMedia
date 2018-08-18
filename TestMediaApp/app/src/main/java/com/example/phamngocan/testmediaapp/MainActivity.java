@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+
         PACKAGE_NAME = getPackageName();
         //prepareInstance();
 
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             @Override
             public void onComplete() {
-
+                ShowLog.logInfo("searchview","complete" );
             }
         });
     }
@@ -144,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
 
-        //Intent intent = new Intent(MainActivity.this,TabActivity.class);
-        Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
+        Intent intent = new Intent(MainActivity.this,TabActivity.class);
+        //Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);

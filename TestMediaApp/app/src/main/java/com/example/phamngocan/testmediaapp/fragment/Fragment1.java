@@ -7,10 +7,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.example.phamngocan.testmediaapp.Animation.CustomAnimation;
 import com.example.phamngocan.testmediaapp.R;
 
 public class Fragment1 extends Fragment {
@@ -20,8 +19,8 @@ public class Fragment1 extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_frag1,container,false );
         imageView = view.findViewById(R.id.disc);
-        Animation rotate = AnimationUtils.loadAnimation(container.getContext(),R.anim.disc_rotate );
-        imageView.startAnimation(rotate);
+
+        CustomAnimation.setAnim(imageView);
         return view;
     }
 }

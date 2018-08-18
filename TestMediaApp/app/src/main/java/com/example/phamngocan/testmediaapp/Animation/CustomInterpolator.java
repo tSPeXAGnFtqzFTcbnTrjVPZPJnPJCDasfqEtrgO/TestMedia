@@ -21,11 +21,17 @@ public class CustomInterpolator {
         return customInterpolator;
     }
 
-    public Interpolator getInterpolator(){
+    public Interpolator getInterpolatorCubic(){
         return PathInterpolatorCompat.create(cubic[0],
                 cubic[1],
                 cubic[2],
                 cubic[3]);
+    }
+    public Interpolator getInterpolatorLinear(){
+        return PathInterpolatorCompat.create(LINEAR[0],
+                LINEAR[1],
+                LINEAR[2],
+                LINEAR[3]);
     }
 
 }
