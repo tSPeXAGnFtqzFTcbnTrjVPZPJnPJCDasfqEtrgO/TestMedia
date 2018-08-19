@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.phamngocan.testmediaapp.Animation.CustomAnimation;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.model.Song;
@@ -70,7 +69,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.Holder> {
 
                  Intent intent  = new Intent(context, ForegroundService.class);
                  intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                 intent.putExtra(ForegroundService.posKey,index);
+                 intent.putExtra(ForegroundService.POS_KEY,index);
                  intent.setAction(Action.START_FORE.getName());
 
                  Log.d("AAA","recycler "+index );

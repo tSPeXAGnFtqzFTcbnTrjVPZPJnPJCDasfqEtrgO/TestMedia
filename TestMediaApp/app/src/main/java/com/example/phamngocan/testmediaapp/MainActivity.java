@@ -19,6 +19,7 @@ import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -81,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     public void onNext(List<Song> songs) {
                         Instance.songList.clear();
                         Instance.songList.addAll(songs);
+                        Instance.songShuffleList.addAll(Instance.songList);
+                        Collections.shuffle(Instance.songShuffleList);
 
                         searchs.clear();
                         for(Song song:songs){
@@ -145,8 +148,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
 
-        Intent intent = new Intent(MainActivity.this,TabActivity.class);
-        //Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
+        Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
+        //Intent intent = new Intent(MainActivity.this,ListMusicActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);

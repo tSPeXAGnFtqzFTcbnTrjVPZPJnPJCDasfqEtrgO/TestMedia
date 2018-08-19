@@ -21,8 +21,8 @@
 
         <service android:name=".services.ForegroundService" />
 
-        <activity android:name=".PlayerActivity" />
-        <activity android:name=".TabActivity"
+        <activity android:name=".ListMusicActivity" />
+        <activity android:name=".PlayerActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
     </application>
 

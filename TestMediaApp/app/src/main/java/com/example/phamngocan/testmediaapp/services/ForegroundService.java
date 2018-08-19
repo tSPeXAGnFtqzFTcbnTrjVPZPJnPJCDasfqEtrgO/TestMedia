@@ -11,8 +11,10 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -22,36 +24,50 @@ import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
 import com.example.phamngocan.testmediaapp.R;
+import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ForegroundService extends Service {
 
-    public final static String posKey = "abc";
-    public final static String curTimeKey = "curTimeKey";
-    public final static String totalTimeKey = "totalTimeKey";
-    public final static String nameSong = "nameSong";
+    public final static String POS_KEY = "abc";
+    public final static String CUR_TIME_KEY = "CUR_TIME_KEY";
+    public final static String TOTAL_TIME_KEY = "TOTAL_TIME_KEY";
+    public final static String NAME_SONG = "NAME_SONG";
+    public final static String SONG_ID = "SONG_ID";
+    public final static String SHUFFLE_KEY = "SHUFFLE_KEY";
+    public final static String REPEAT_KEY = "REPEAT_KEY";
+    public final static String UPDATE_PROGRESS = "UPDATE_PROGRESS";
+    public final static String PAUSE = "PAUSE";
+    public final static String PLAY = "PLAY";
+    public final static String STOP = "STOP";
 
-    private final int REQUEST_CODE = 123;
+
+    public static final int REQUEST_CODE = 123;
     private final String CHANNEL_ID = "111";
     private final int FORE_ID = 321;
     private static int pos;
+
+    private boolean isShuffle = false;
+    private boolean isRepeat = false;
+
     MediaPlayer mediaPlayer;
 
 
     RemoteViews remoteViews = new RemoteViews(MainActivity.PACKAGE_NAME, R.layout.content_notification);
 
     Notification notifiCustom;
-    Intent prevIntent, nextIntent, noificationMainIntent, playIntent, pauseIntent, stopIntent;
+    Intent noificationMainIntent, playIntent, pauseIntent, stopIntent, prevIntent, nextIntent, updateProgressIntent;
+    Intent repeatIntent, shuffleIntent;
     PendingIntent mainPending, playPending, pausePending, stopPending, prevPending, nextPending;
+
     NotificationManager mNotificationManager;
 
-    Intent intentBroadcast;
+    Intent intentUpdateBroadcast, intentPauseBroadcast, intentPlayBroadcast, intentStopBroadcast, intentNextBroadcast, intentPrevBroadcast;
 
     @Nullable
     @Override
@@ -90,8 +106,8 @@ public class ForegroundService extends Service {
         }
 
         String action = intent.getAction();
-        pos = intent.getIntExtra(posKey, pos);
-        ShowLog.logInfo("fore pos:  " ,pos);
+        pos = intent.getIntExtra(POS_KEY, pos);
+        ShowLog.logInfo("fore pos:  ", pos);
 
         ShowLog.logInfo("action", action);
 
@@ -111,6 +127,9 @@ public class ForegroundService extends Service {
             mNotificationManager.notify(FORE_ID, notifiCustom);
             resume();
 
+            sendBroadcast(intentPlayBroadcast);
+
+
         } else if (action.equals(Action.PAUSE.getName())) {
             Log.d("AAA", "pause");
             remoteViews.setImageViewResource(R.id.notifi_play, R.drawable.ic_play);
@@ -120,13 +139,20 @@ public class ForegroundService extends Service {
             mNotificationManager.notify(FORE_ID, notifiCustom);
             pause();
 
+            sendBroadcast(intentPauseBroadcast);
+
         } else if (action.equals(Action.STOP.getName())) {
             Log.d("AAA", "stop");
+            sendBroadcast(intentPauseBroadcast);
+
 
         } else if (action.equals(Action.NEXT.getName())) {
             Log.d("AAA", "NEXT");
             pos = (pos + 1) % Instance.songList.size();
             play(pos);
+
+            //sendBroadcast(intentNextBroadcast);
+
 
         } else if (action.equals(Action.PREVIOUS.getName())) {
             Log.d("AAA", "PREV");
@@ -135,6 +161,21 @@ public class ForegroundService extends Service {
             }
             pos--;
             play(pos);
+
+            //sendBroadcast(intentPrevBroadcast);
+
+        } else if (action.equals(Action.UPDATE.getName())) {
+            ShowLog.logInfo("get update", intent.getIntExtra(UPDATE_PROGRESS, -1));
+            if (mediaPlayer != null) {
+                int progress = intent.getIntExtra(UPDATE_PROGRESS, mediaPlayer.getCurrentPosition());
+                mediaPlayer.seekTo(progress);
+            }
+        } else if (action.equals(Action.REPEAT.getName())) {
+            isRepeat = intent.getBooleanExtra(REPEAT_KEY, isRepeat);
+            ShowLog.logInfo("repeat", isRepeat);
+        } else if (action.equals(Action.SHUFFLE.getName())) {
+            isShuffle = intent.getBooleanExtra(SHUFFLE_KEY, isShuffle);
+            ShowLog.logInfo("shuffle", isShuffle);
         }
 
         return START_STICKY;
@@ -147,45 +188,76 @@ public class ForegroundService extends Service {
     }
 
     private void play(int pos) {
+        play(pos, false);
+    }
+
+    private void play(int pos, boolean isEnd) {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
-        }
 
-        ShowLog.logInfo("path",Instance.songList.get(pos).getPath());
+        }
+        Song song = Instance.songList.get(0);
+
+        ShowLog.logInfo("path", Instance.songList.get(pos).getPath());
         int t = pos;
         do {
-            ShowLog.logInfo("fore",Instance.songList.get(pos).getNameVi());
-            mediaPlayer = MediaPlayer.create(this, Uri.parse(Instance.songList.get(pos).getPath()));
-            pos= (pos+1)%Instance.songList.size();
-            ShowLog.logInfo("for mp",mediaPlayer);
-        }while (mediaPlayer==null && t!=pos);
-        if(mediaPlayer!=null){
-            pos=t;
-            Log.d("a","playing");
-            remoteViews.setTextViewText(R.id.notifi_title,Instance.songList.get(pos).getNameVi());
-            //remoteViews.setString(R.id.notifi_title,"",Instance.songList.get(pos).getNameVi());
+            ShowLog.logInfo("fore", Instance.songList.get(pos).getNameVi());
 
-            mNotificationManager.notify(FORE_ID,notifiCustom);
+            if (isEnd && isRepeat) {//repeat if end of song (false when event next-prev-start
+                if (pos == 0) {
+                    pos = Instance.songList.size();
+                }
+                pos--;
+                break;
+            }
+
+            if (isShuffle) {
+                song = Instance.songShuffleList.get(pos);
+            } else {
+                song = Instance.songList.get(pos);
+
+            }
+            mediaPlayer = MediaPlayer.create(this, Uri.parse(song.getPath()));
+            if (mediaPlayer != null) {
+                break;
+            }
+
+            pos = (pos + 1) % Instance.songList.size();
+
+            ShowLog.logInfo("for mp", mediaPlayer);
+        } while (t != pos);
+        if (mediaPlayer != null) {
+
+            Log.d("a", "playing");
+
+            remoteViews.setTextViewText(R.id.notifi_title, song.getNameVi());
+
+
+            mNotificationManager.notify(FORE_ID, notifiCustom);
             mediaPlayer.start();
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     ForegroundService.pos = (ForegroundService.pos + 1) % Instance.songList.size();
-
-                    play(ForegroundService.pos);
+                    play(ForegroundService.pos, true);
 
                 }
             });
+
+            sendBroadcast(intentPlayBroadcast);
         }
     }
-    private void resume(){
-        if(mediaPlayer!=null){
+
+    private void resume() {
+        if (mediaPlayer != null) {
             mediaPlayer.start();
         }
     }
-    private void  pause(){
-        if(mediaPlayer!=null && mediaPlayer.isPlaying()){
+
+    private void pause() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
     }
@@ -221,10 +293,22 @@ public class ForegroundService extends Service {
         nextIntent.setAction(Action.NEXT.getName());
         nextPending = PendingIntent.getService(this, REQUEST_CODE, nextIntent, 0);
 
+        updateProgressIntent = new Intent(this, ForegroundService.class);
+        updateProgressIntent.setAction(Action.UPDATE.getName());
+        //updateProgressPending = PendingIntent.getService(this, REQUEST_CODE, updateProgressIntent, 0);
+
+        repeatIntent = new Intent(this, ForegroundService.class);
+        repeatIntent.setAction(Action.REPEAT.getName());
+        //repeatPending = PendingIntent.getService(this, REQUEST_CODE, repeatIntent, 0);
+
+        shuffleIntent = new Intent(this, ForegroundService.class);
+        shuffleIntent.setAction(Action.SHUFFLE.getName());
+        //shufflePending = PendingIntent.getService(this,REQUEST_CODE,shuffleIntent ,0 );
+
         NotificationChannel channel;
 
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-             channel = new NotificationChannel(CHANNEL_ID,"name",NotificationManager.IMPORTANCE_HIGH);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            channel = new NotificationChannel(CHANNEL_ID, "name", NotificationManager.IMPORTANCE_HIGH);
 
             mNotificationManager.createNotificationChannel(channel);
         }
@@ -242,13 +326,29 @@ public class ForegroundService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.notifi_play, pausePending);
 
 
-        intentBroadcast = new Intent();
+        intentUpdateBroadcast = new Intent();
+        intentUpdateBroadcast.setAction(ActionBroadCast.CURSEEK.getName());
+
+        intentStopBroadcast = new Intent();
+        intentStopBroadcast.setAction(ActionBroadCast.STOP.getName());
+
+        intentPauseBroadcast = new Intent();
+        intentPauseBroadcast.setAction(ActionBroadCast.PAUSE.getName());
+
+        intentPlayBroadcast = new Intent();
+        intentPlayBroadcast.setAction(ActionBroadCast.PLAY.getName());
+
+        intentNextBroadcast = new Intent();
+        intentNextBroadcast.setAction(ActionBroadCast.NEXT.getName());
+
+        intentPrevBroadcast = new Intent();
+        intentPrevBroadcast.setAction(ActionBroadCast.PREV.getName());
     }
 
 
-    private void updateTime(){
-        io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS )
-                .subscribeOn(Schedulers.io())
+    private void updateTime() {
+        io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.computation())
                 .subscribe(new Observer<Long>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -257,12 +357,16 @@ public class ForegroundService extends Service {
 
                     @Override
                     public void onNext(Long aLong) {
-                        if(mediaPlayer!=null){
-                            intentBroadcast.setAction(ActionBroadCast.CURSEEK.getName());
-                            intentBroadcast.putExtra(nameSong, Instance.songList.get(pos).getNameVi());
-                            intentBroadcast.putExtra(curTimeKey,mediaPlayer.getCurrentPosition() );
-                            intentBroadcast.putExtra(totalTimeKey,mediaPlayer.getDuration() );
-                            sendBroadcast(intentBroadcast);
+                        if (mediaPlayer != null) {
+                            intentUpdateBroadcast.putExtra(SONG_ID, pos);
+                            intentUpdateBroadcast.putExtra(NAME_SONG, Instance.songList.get(pos).getNameVi());
+                            try {
+                                intentUpdateBroadcast.putExtra(CUR_TIME_KEY, mediaPlayer.getCurrentPosition());
+                                intentUpdateBroadcast.putExtra(TOTAL_TIME_KEY, mediaPlayer.getDuration());
+                            } catch (IllegalStateException e) {
+                                ShowLog.logInfo("error", e.getMessage());
+                            }
+                            sendBroadcast(intentUpdateBroadcast);
                         }
                     }
 
