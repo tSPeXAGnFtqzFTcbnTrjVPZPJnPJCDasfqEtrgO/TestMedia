@@ -241,11 +241,11 @@ public class PlayerActivity extends AppCompatActivity {
         });
         btnPrev.setOnClickListener(v -> {
             ShowLog.logInfo("inner click", "prev");
-            startService(nextIntent);
+            startService(prevIntent);
         });
         btnNext.setOnClickListener(v -> {
             ShowLog.logInfo("inner click", "next");
-            startService(prevIntent);
+            startService(nextIntent);
         });
         btnShuffle.setOnClickListener(v -> {
             isShuffle = !isShuffle;

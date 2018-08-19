@@ -210,7 +210,6 @@ public class ForegroundService extends Service {
                     pos = Instance.songList.size();
                 }
                 pos--;
-                break;
             }
 
             if (isShuffle) {
@@ -225,6 +224,7 @@ public class ForegroundService extends Service {
             }
 
             pos = (pos + 1) % Instance.songList.size();
+
 
             ShowLog.logInfo("for mp", mediaPlayer);
         } while (t != pos);
