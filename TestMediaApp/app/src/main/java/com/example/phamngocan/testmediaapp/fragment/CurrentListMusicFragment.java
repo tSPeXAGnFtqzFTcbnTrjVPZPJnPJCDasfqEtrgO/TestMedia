@@ -14,7 +14,6 @@ import android.widget.SearchView;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
-import com.example.phamngocan.testmediaapp.adapter.SongAdapter;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 
@@ -31,7 +30,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-public class Fragment2 extends Fragment {
+public class CurrentListMusicFragment extends Fragment {
     @BindView(R.id.list_search)
     RecyclerView listSearch;
     ArrayList<String> searchs = new ArrayList<>();
@@ -43,7 +42,7 @@ public class Fragment2 extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_frag2,container,false );
+        View view = inflater.inflate(R.layout.layout_current_list_fragment,container,false );
         ButterKnife.bind(this,view);
         init();
         setUpSearch();

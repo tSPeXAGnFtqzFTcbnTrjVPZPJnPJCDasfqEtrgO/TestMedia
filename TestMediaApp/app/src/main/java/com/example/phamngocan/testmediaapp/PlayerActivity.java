@@ -14,13 +14,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bq.markerseekbar.MarkerSeekBar;
+import com.example.phamngocan.testmediaapp.fragment.CurrentListMusicFragment;
+import com.example.phamngocan.testmediaapp.fragment.DiscFragment;
 import com.example.phamngocan.testmediaapp.adapter.ViewPagerAdapter;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
-import com.example.phamngocan.testmediaapp.fragment.Fragment1;
-import com.example.phamngocan.testmediaapp.fragment.Fragment2;
-import com.example.phamngocan.testmediaapp.fragment.Fragment3;
-import com.example.phamngocan.testmediaapp.fragment.Fragment4;
+import com.example.phamngocan.testmediaapp.fragment.ListMusicFragment;
+import com.example.phamngocan.testmediaapp.fragment.PlayListFragment;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.indicator.MyIndicatorView;
 import com.example.phamngocan.testmediaapp.indicator.PageException;
@@ -89,10 +89,10 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void init() {
 
-        fragments.add(new Fragment1());
-        fragments.add(new Fragment2());
-        fragments.add(new Fragment3());
-        fragments.add(new Fragment4());
+        fragments.add(new DiscFragment());
+        fragments.add(new CurrentListMusicFragment());
+        fragments.add(new ListMusicFragment());
+        fragments.add(new PlayListFragment());
 
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(pagerAdapter);

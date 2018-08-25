@@ -17,29 +17,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter{
     @Override
     public Fragment getItem(int position) {
         return fragments.get(position);
-
-//        switch (position){
-//            case 0:{
-//                return new Fragment1();
-//
-//            }
-//            case 1:{
-//                return new Fragment2();
-//
-//            }
-//            case 2:{
-//                return new Fragment3();
-//
-//            }
-//            case 3:{
-//                return new Fragment4();
-//
-//            }
-//            default:{
-//                return null;
-//            }
-//
-//        }
     }
 
     @Override
