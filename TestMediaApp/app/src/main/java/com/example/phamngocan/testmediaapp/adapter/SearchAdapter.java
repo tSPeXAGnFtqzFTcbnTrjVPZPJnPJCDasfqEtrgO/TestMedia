@@ -12,7 +12,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.function.Kmp;
@@ -25,11 +24,13 @@ import java.util.Locale;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> implements Filterable{
 
     ArrayList<Song> songs;
+    ArrayList<Song> baseSongs;
     Context context;
     ItemFilter itemFilter = new ItemFilter();
 
     public SearchAdapter(ArrayList<Song> songs, Context context) {
         this.songs = songs;
+        this.baseSongs = songs;
         this.context = context;
     }
 
@@ -67,6 +68,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         public Holder(View itemView) {
             super(itemView);
             txtvName = itemView.findViewById(R.id.item_name);
+            txtvName.setSelected(true);
 
             itemView.setOnClickListener(v -> {
 
@@ -95,9 +97,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
             FilterResults results = new FilterResults();
             ArrayList<Song> nlist = new ArrayList<>();
 
-            for(int i=0;i<Instance.songList.size();i++){
-                if(Kmp.isMatch(Instance.songList.get(i).getNameSearch(),charSequence.toString() )){
-                    nlist.add(Instance.songList.get(i));
+            for(int i = 0; i< baseSongs.size(); i++){
+                if(Kmp.isMatch(baseSongs.get(i).getNameSearch(),charSequence.toString() )){
+                    nlist.add(baseSongs.get(i));
                 }
             }
             results.values = nlist;
@@ -107,12 +109,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                if(filterResults == null){
-                    songs = Instance.songList;
-                }else{
-                    songs = (ArrayList<Song>) filterResults.values;
-                }
-                notifyDataSetChanged();
+            if(filterResults == null){
+                songs = baseSongs;
+            }else{
+                songs = (ArrayList<Song>) filterResults.values;
+            }
+            notifyDataSetChanged();
         }
     }
 }

@@ -11,24 +11,21 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
-import com.example.phamngocan.testmediaapp.function.ShowLog;
-import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
 import com.example.phamngocan.testmediaapp.R;
+import com.example.phamngocan.testmediaapp.constant.Action;
+import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -38,6 +35,7 @@ public class ForegroundService extends Service {
     public final static String CUR_TIME_KEY = "CUR_TIME_KEY";
     public final static String TOTAL_TIME_KEY = "TOTAL_TIME_KEY";
     public final static String NAME_SONG = "NAME_SONG";
+    public final static String NAME_ARTIST = "NAME_ARTIST";
     public final static String SONG_ID = "SONG_ID";
     public final static String SHUFFLE_KEY = "SHUFFLE_KEY";
     public final static String REPEAT_KEY = "REPEAT_KEY";
@@ -55,6 +53,9 @@ public class ForegroundService extends Service {
     private boolean isShuffle = false;
     private boolean isRepeat = false;
 
+    public boolean isStarting = false;
+
+    Disposable disposable;
     MediaPlayer mediaPlayer;
 
 
@@ -91,6 +92,7 @@ public class ForegroundService extends Service {
         super.onCreate();
 
         Log.d("AAA", "create");
+        isStarting = true;
         setupIntent();
         updateTime();
     }
@@ -143,7 +145,12 @@ public class ForegroundService extends Service {
 
         } else if (action.equals(Action.STOP.getName())) {
             Log.d("AAA", "stop");
-            sendBroadcast(intentPauseBroadcast);
+
+            stop();
+
+            sendBroadcast(intentStopBroadcast);
+            disposable.dispose();
+            stopSelf();
 
 
         } else if (action.equals(Action.NEXT.getName())) {
@@ -261,6 +268,13 @@ public class ForegroundService extends Service {
             mediaPlayer.pause();
         }
     }
+    private void stop(){
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.release();
+        }
+    }
 
     private void setupIntent() {
 
@@ -324,6 +338,7 @@ public class ForegroundService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.notifi_next, nextPending);
         remoteViews.setOnClickPendingIntent(R.id.notifi_prev, prevPending);
         remoteViews.setOnClickPendingIntent(R.id.notifi_play, pausePending);
+        remoteViews.setOnClickPendingIntent(R.id.notifi_stop,stopPending );
 
 
         intentUpdateBroadcast = new Intent();
@@ -347,37 +362,21 @@ public class ForegroundService extends Service {
 
 
     private void updateTime() {
-        io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS)
+
+         disposable = io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.computation())
-                .subscribe(new Observer<Long>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Long aLong) {
-                        if (mediaPlayer != null) {
-                            intentUpdateBroadcast.putExtra(SONG_ID, pos);
-                            intentUpdateBroadcast.putExtra(NAME_SONG, Instance.songList.get(pos).getNameVi());
-                            try {
-                                intentUpdateBroadcast.putExtra(CUR_TIME_KEY, mediaPlayer.getCurrentPosition());
-                                intentUpdateBroadcast.putExtra(TOTAL_TIME_KEY, mediaPlayer.getDuration());
-                            } catch (IllegalStateException e) {
-                                ShowLog.logInfo("error", e.getMessage());
-                            }
-                            sendBroadcast(intentUpdateBroadcast);
+                .subscribe(lLong->{
+                    if (mediaPlayer != null) {
+                        intentUpdateBroadcast.putExtra(SONG_ID, pos);
+                        intentUpdateBroadcast.putExtra(NAME_SONG, Instance.songList.get(pos).getNameVi());
+                        intentUpdateBroadcast.putExtra(NAME_ARTIST,Instance.songList.get(pos).getArtistName() );
+                        try {
+                            intentUpdateBroadcast.putExtra(CUR_TIME_KEY, mediaPlayer.getCurrentPosition());
+                            intentUpdateBroadcast.putExtra(TOTAL_TIME_KEY, mediaPlayer.getDuration());
+                        } catch (IllegalStateException e) {
+                            ShowLog.logInfo("error", e.getMessage());
                         }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
+                        sendBroadcast(intentUpdateBroadcast);
                     }
                 });
     }

@@ -30,6 +30,12 @@
             android:layout_weight="3"
             android:src="@drawable/ic_pause"/>
         <ImageView
+            android:id="@+id/notifi_stop"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:src="@drawable/ic_stop"/>
+        <ImageView
             android:id="@+id/notifi_next"
             android:layout_width="0dp"
             android:layout_height="match_parent"
