@@ -57,6 +57,7 @@ public class ForegroundService extends Service {
 
     Disposable disposable;
     MediaPlayer mediaPlayer;
+    Song currentSong;
 
 
     RemoteViews remoteViews = new RemoteViews(MainActivity.PACKAGE_NAME, R.layout.content_notification);
@@ -102,9 +103,13 @@ public class ForegroundService extends Service {
         super.onStartCommand(intent, flags, startId);
         Log.d("AAA", "start");
 
-        if (intent.getAction() == null) {
-            Log.d("AAA", "Intent null");
-            return START_NOT_STICKY;
+        try {
+            if (intent.getAction() == null) {
+                Log.d("AAA", "Intent null");
+                return START_NOT_STICKY;
+            }
+        } catch (NullPointerException e) {
+
         }
 
         String action = intent.getAction();
@@ -205,14 +210,14 @@ public class ForegroundService extends Service {
             mediaPlayer.release();
 
         }
-        Song song = Instance.songList.get(0);
+
 
         ShowLog.logInfo("path", Instance.songList.get(pos).getPath());
         int t = pos;
         do {
             ShowLog.logInfo("fore", Instance.songList.get(pos).getNameVi());
 
-            if (isEnd && isRepeat) {//repeat if end of song (false when event next-prev-start
+            if (isEnd && isRepeat) {//repeat if end of currentSong (false when event next-prev-start
                 if (pos == 0) {
                     pos = Instance.songList.size();
                 }
@@ -220,12 +225,12 @@ public class ForegroundService extends Service {
             }
 
             if (isShuffle) {
-                song = Instance.songShuffleList.get(pos);
+                currentSong = Instance.songShuffleList.get(pos);
             } else {
-                song = Instance.songList.get(pos);
+                currentSong = Instance.songList.get(pos);
 
             }
-            mediaPlayer = MediaPlayer.create(this, Uri.parse(song.getPath()));
+            mediaPlayer = MediaPlayer.create(this, Uri.parse(currentSong.getPath()));
             if (mediaPlayer != null) {
                 break;
             }
@@ -237,9 +242,9 @@ public class ForegroundService extends Service {
         } while (t != pos);
         if (mediaPlayer != null) {
 
-            Log.d("a", "playing");
+            Log.d("a", "playing " + currentSong.getNameEn());
 
-            remoteViews.setTextViewText(R.id.notifi_title, song.getNameVi());
+            remoteViews.setTextViewText(R.id.notifi_title, currentSong.getNameVi());
 
 
             mNotificationManager.notify(FORE_ID, notifiCustom);
@@ -268,7 +273,8 @@ public class ForegroundService extends Service {
             mediaPlayer.pause();
         }
     }
-    private void stop(){
+
+    private void stop() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mediaPlayer.reset();
@@ -338,7 +344,7 @@ public class ForegroundService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.notifi_next, nextPending);
         remoteViews.setOnClickPendingIntent(R.id.notifi_prev, prevPending);
         remoteViews.setOnClickPendingIntent(R.id.notifi_play, pausePending);
-        remoteViews.setOnClickPendingIntent(R.id.notifi_stop,stopPending );
+        remoteViews.setOnClickPendingIntent(R.id.notifi_stop, stopPending);
 
 
         intentUpdateBroadcast = new Intent();
@@ -363,13 +369,13 @@ public class ForegroundService extends Service {
 
     private void updateTime() {
 
-         disposable = io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS)
+        disposable = io.reactivex.Observable.interval(500, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.computation())
-                .subscribe(lLong->{
+                .subscribe(lLong -> {
                     if (mediaPlayer != null) {
                         intentUpdateBroadcast.putExtra(SONG_ID, pos);
-                        intentUpdateBroadcast.putExtra(NAME_SONG, Instance.songList.get(pos).getNameVi());
-                        intentUpdateBroadcast.putExtra(NAME_ARTIST,Instance.songList.get(pos).getArtistName() );
+                        intentUpdateBroadcast.putExtra(NAME_SONG, currentSong.getNameVi());
+                        intentUpdateBroadcast.putExtra(NAME_ARTIST, currentSong.getArtistName());
                         try {
                             intentUpdateBroadcast.putExtra(CUR_TIME_KEY, mediaPlayer.getCurrentPosition());
                             intentUpdateBroadcast.putExtra(TOTAL_TIME_KEY, mediaPlayer.getDuration());

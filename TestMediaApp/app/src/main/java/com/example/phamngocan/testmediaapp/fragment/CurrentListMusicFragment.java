@@ -1,5 +1,9 @@
 package com.example.phamngocan.testmediaapp.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,8 +16,10 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import com.example.phamngocan.testmediaapp.Instance;
+import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
+import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 
@@ -38,6 +44,14 @@ public class CurrentListMusicFragment extends Fragment {
     @BindView(R.id.searchView)
     SearchView searchView;
 
+
+    Context mContext;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
 
     @Nullable
     @Override
@@ -93,4 +107,37 @@ public class CurrentListMusicFragment extends Fragment {
                 });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        register();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregister();
+    }
+
+    private void register(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName());
+        mContext.registerReceiver(broadcastReceiver,intentFilter );
+    }
+    private void unregister(){
+        mContext.unregisterReceiver(broadcastReceiver);
+    }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null && intent.getAction().equals(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName())) {
+                boolean isShuffle = intent.getBooleanExtra(PlayerActivity.UPDATE_SHUFFLE_KEY, false);
+                searchView.setQuery("",false );
+
+                adapterSearch.shuffle(isShuffle);
+
+            }
+        }
+    };
 }

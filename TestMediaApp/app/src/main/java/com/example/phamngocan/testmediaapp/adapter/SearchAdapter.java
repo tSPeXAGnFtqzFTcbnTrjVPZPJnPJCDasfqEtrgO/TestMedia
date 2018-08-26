@@ -15,10 +15,12 @@ import android.widget.TextView;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.function.Kmp;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
 import com.example.phamngocan.testmediaapp.services.ForegroundService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> implements Filterable{
@@ -116,5 +118,17 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
             }
             notifyDataSetChanged();
         }
+    }
+
+    public void shuffle(boolean isShuffle){
+        songs = baseSongs;
+        ArrayList<Song> suffleArray = new ArrayList<>();
+        suffleArray.addAll(baseSongs);
+
+        if(isShuffle){
+            Collections.shuffle(suffleArray);
+            songs = suffleArray;
+        }
+        notifyDataSetChanged();
     }
 }

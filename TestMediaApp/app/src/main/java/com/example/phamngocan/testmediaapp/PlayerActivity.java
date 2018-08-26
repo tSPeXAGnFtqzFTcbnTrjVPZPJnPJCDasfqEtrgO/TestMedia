@@ -32,6 +32,8 @@ import butterknife.ButterKnife;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    public static final String UPDATE_SHUFFLE_KEY = "UPDATE_LIST_SHUFFLE";
+
     @BindView(R.id.txtv_name)
     TextView txtvName;
     @BindView(R.id.txtv_artist)
@@ -61,6 +63,8 @@ public class PlayerActivity extends AppCompatActivity {
     Intent playIntent, pauseIntent, prevIntent, nextIntent,startFore;
     Intent updateIntent;
     Intent shuffleIntent, repeatIntent;
+    Intent intentUpdateListShuffleBroadcast;
+
     ArrayList<Fragment> fragments = new ArrayList<>();
     ViewPagerAdapter pagerAdapter;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -183,6 +187,10 @@ public class PlayerActivity extends AppCompatActivity {
 
         shuffleIntent = new Intent(PlayerActivity.this, ForegroundService.class);
         shuffleIntent.setAction(Action.SHUFFLE.getName());
+
+        intentUpdateListShuffleBroadcast = new Intent();
+        intentUpdateListShuffleBroadcast.setAction(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName());
+
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -278,6 +286,9 @@ public class PlayerActivity extends AppCompatActivity {
             }else{
                 btnShuffle.setImageResource(R.drawable.ic_shuffle_unselected);
             }
+
+            intentUpdateListShuffleBroadcast.putExtra(UPDATE_SHUFFLE_KEY,isShuffle );
+            sendBroadcast(intentUpdateListShuffleBroadcast);
 
             shuffleIntent.putExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
             startService(shuffleIntent);
