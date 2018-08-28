@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.function.Kmp;
@@ -27,8 +29,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
 
     ArrayList<Song> songs;
     ArrayList<Song> baseSongs;
+    ArrayList<Song> shuffleSongs;
     Context context;
     ItemFilter itemFilter = new ItemFilter();
+
+    boolean isShuffle = false;
 
     public SearchAdapter(ArrayList<Song> songs, Context context) {
         this.songs = songs;
@@ -112,7 +117,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             if(filterResults == null){
-                songs = baseSongs;
+                songs = isShuffle ? shuffleSongs : baseSongs;
             }else{
                 songs = (ArrayList<Song>) filterResults.values;
             }
@@ -121,14 +126,25 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     }
 
     public void shuffle(boolean isShuffle){
+
+        this.isShuffle = isShuffle;
+
         songs = baseSongs;
+        shuffleSongs = baseSongs;
+
         ArrayList<Song> suffleArray = new ArrayList<>();
         suffleArray.addAll(baseSongs);
 
-        if(isShuffle){
+        if (isShuffle) {
             Collections.shuffle(suffleArray);
             songs = suffleArray;
+            shuffleSongs = suffleArray;
+            for (int i = 0; i < songs.size(); i++) {
+                songs.get(i).setPosition(i);
+            }
         }
+        Instance.songShuffleList.clear();
+        Instance.songShuffleList.addAll(songs);
         notifyDataSetChanged();
     }
 }

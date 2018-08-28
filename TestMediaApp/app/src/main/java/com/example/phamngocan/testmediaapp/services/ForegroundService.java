@@ -109,7 +109,7 @@ public class ForegroundService extends Service {
                 return START_NOT_STICKY;
             }
         } catch (NullPointerException e) {
-
+            return START_NOT_STICKY;
         }
 
         String action = intent.getAction();
@@ -212,7 +212,8 @@ public class ForegroundService extends Service {
         }
 
 
-        ShowLog.logInfo("path", Instance.songList.get(pos).getPath());
+        ShowLog.logInfo("path", isShuffle ? Instance.songShuffleList.get(pos).getPath() :
+                Instance.songList.get(pos).getPath());
         int t = pos;
         do {
             ShowLog.logInfo("fore", Instance.songList.get(pos).getNameVi());
@@ -373,6 +374,8 @@ public class ForegroundService extends Service {
                 .subscribeOn(Schedulers.computation())
                 .subscribe(lLong -> {
                     if (mediaPlayer != null) {
+                        intentUpdateBroadcast.putExtra(REPEAT_KEY,isRepeat );
+                        intentUpdateBroadcast.putExtra(SHUFFLE_KEY,isShuffle );
                         intentUpdateBroadcast.putExtra(SONG_ID, pos);
                         intentUpdateBroadcast.putExtra(NAME_SONG, currentSong.getNameVi());
                         intentUpdateBroadcast.putExtra(NAME_ARTIST, currentSong.getArtistName());

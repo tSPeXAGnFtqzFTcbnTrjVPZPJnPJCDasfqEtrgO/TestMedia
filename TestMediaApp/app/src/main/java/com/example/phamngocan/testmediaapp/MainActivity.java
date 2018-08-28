@@ -1,6 +1,7 @@
 package com.example.phamngocan.testmediaapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -12,9 +13,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.SearchView;
 
+import com.example.phamngocan.testmediaapp.Loader.PlaylistLoader;
+import com.example.phamngocan.testmediaapp.Loader.PlaylistSongLoader;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
+import com.example.phamngocan.testmediaapp.function.MusicPlayer;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.model.Playlist;
 import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
@@ -34,11 +39,12 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-interface X{
-    static Observable<char[]> search(char[] cs){
+interface X {
+    static Observable<char[]> search(char[] cs) {
         return Observable.defer(() -> Observable.just(cs));
     }
-    static Observable<String> search1(String s){
+
+    static Observable<String> search1(String s) {
         return Observable.defer(() -> Observable.just(s));
     }
 }
@@ -46,6 +52,7 @@ interface X{
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     public static String PACKAGE_NAME;
+    public static Context context;
     private final int REQUEST_PERMISSION_READ_EXTERNAL = 123;
 
     @BindView(R.id.list_search)
@@ -63,12 +70,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
         PACKAGE_NAME = getPackageName();
+        context = getApplicationContext();
         //prepareInstance();
 
         getListMp3()
                 .subscribeOn(Schedulers.io())
                 .map(o -> {
-                    Log.d("AAA","thread"+Thread.currentThread().getName());
+                    Log.d("AAA", "thread" + Thread.currentThread().getName());
                     return ScanFileMp3.queryFileExternal(getApplicationContext());
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -86,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         Collections.shuffle(Instance.songShuffleList);
 
                         searchs.clear();
-                        for(Song song:songs){
+                        for (Song song : songs) {
                             searchs.add(song.getNameEn());
                         }
                         adapterSearch.notifyDataSetChanged();
@@ -100,7 +108,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     @Override
                     public void onComplete() {
-
+                        initDatabase();
+                        loadPlaylist();
                     }
                 });
 
@@ -110,45 +119,46 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     }
 
-    private void setUpSearch(){
+    private void setUpSearch() {
         RxSearch.fromSearchView(searchView)
-                .debounce(300, TimeUnit.MILLISECONDS )
+                .debounce(300, TimeUnit.MILLISECONDS)
                 //.filter(s -> !s.isEmpty())
                 .distinctUntilChanged()
                 .switchMap((Function<String, ObservableSource<String>>) s -> Observable.just(s))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Observer<String>() {
-            @Override
-            public void onSubscribe(Disposable d) {
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-            }
+                    }
 
-            @Override
-            public void onNext(String s) {
-                ShowLog.logInfo("query search", s);
-                adapterSearch.getFilter().filter(s);
-            }
+                    @Override
+                    public void onNext(String s) {
+                        ShowLog.logInfo("query search", s);
+                        adapterSearch.getFilter().filter(s);
+                    }
 
-            @Override
-            public void onError(Throwable e) {
+                    @Override
+                    public void onError(Throwable e) {
 
-            }
+                    }
 
-            @Override
-            public void onComplete() {
-                ShowLog.logInfo("searchview","complete" );
-            }
-        });
+                    @Override
+                    public void onComplete() {
+                        ShowLog.logInfo("searchview", "complete");
+                    }
+                });
     }
+
     private void action() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        adapterSearch = new SearchAdapter(Instance.songList,getApplicationContext());
+        adapterSearch = new SearchAdapter(Instance.songList, getApplicationContext());
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
 
-        Intent intent = new Intent(MainActivity.this,PlayerActivity.class);
+        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
         //Intent intent = new Intent(MainActivity.this,ListMusicActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -157,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         String s = "abx";
 
         ArrayList<Integer> arrayList = new ArrayList<>();
-        for(int i=1;i<=10;i++){
+        for (int i = 1; i <= 10; i++) {
             arrayList.add(i);
         }
 
@@ -171,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     @Override
                     public void onNext(String s) {
-                        Log.d("AAA","map covert arr: " + s );
+                        Log.d("AAA", "map covert arr: " + s);
                     }
 
                     @Override
@@ -215,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     }
                 });
         X.search1(s)
-                .flatMap(s1-> Observable.fromIterable(Arrays.asList(s1.split(""))))
-                .map(s1->s1.concat("x"))
+                .flatMap(s1 -> Observable.fromIterable(Arrays.asList(s1.split(""))))
+                .map(s1 -> s1.concat("x"))
                 .observeOn(Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
@@ -226,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     @Override
                     public void onNext(String s) {
-                        Log.d("AAA","spilit: " + s );
+                        Log.d("AAA", "spilit: " + s);
                     }
 
                     @Override
@@ -243,39 +253,75 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
 
-
-    private Observable<Integer> getANumberObservable(){
+    private Observable<Integer> getANumberObservable() {
         return Observable.defer((Callable<ObservableSource<Integer>>) () -> Observable.just(1334));
     }
-    private Observable<Object> getListMp3(){
-        return Observable.defer(()->Observable.just(1));
+
+    private Observable<Object> getListMp3() {
+        return Observable.defer(() -> Observable.just(1));
     }
+
     private void prepareInstance() {
         Instance.songList.clear();
         Instance.songList.addAll(ScanFileMp3.queryFileExternal(getApplicationContext()));
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            int check = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int check = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 
-            if(check == PackageManager.PERMISSION_GRANTED){
+            if (check == PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_PERMISSION_READ_EXTERNAL);
             }
-        }else {
+        } else {
             Instance.songList.addAll(ScanFileMp3.queryFileInternal(getApplicationContext()));
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case REQUEST_PERMISSION_READ_EXTERNAL:{
-                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        switch (requestCode) {
+            case REQUEST_PERMISSION_READ_EXTERNAL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Instance.songList = ScanFileMp3.queryFileInternal(getApplicationContext());
                 }
                 break;
             }
         }
     }
+
+    private void initDatabase() {
+        String name = "playlist1";
+        long state = MusicPlayer.createPlaylist(getApplicationContext(), name);
+
+        long[] ids = new long[Instance.songList.size()];
+        ShowLog.logInfo("size ids",ids.length );
+        for (int i = 0; i < Instance.songList.size(); i++) {
+            ids[i] = Instance.songList.get(i).getId();
+        }
+
+        //MusicPlayer.addToPlaylist(getApplicationContext(), ids, 127);
+        if (state != -1) {
+            ShowLog.logInfo("create playlist", "success");
+            //MusicPlayer.addToPlaylist(getApplicationContext(), ids, 127);
+        } else {
+            ShowLog.logInfo("create playlist", "fail");
+        }
+    }
+
+    private void loadPlaylist() {
+        ArrayList<Playlist> playlists = PlaylistLoader.load(getApplicationContext());
+        if (playlists != null) {
+            for (Playlist playlist : playlists) {
+                ArrayList<Song> songs = PlaylistSongLoader.getSongFromPlaylist(getApplicationContext(), playlist.getmId());
+                ShowLog.logInfo("size " + playlist.getmName(),playlist.getmCount() );
+                for (Song song : songs) {
+                    ShowLog.logInfo(playlist.getmName(), song.getNameVi());
+                }
+            }
+        } else {
+            ShowLog.logInfo("playlist", "null");
+        }
+    }
+
 
     @Override
     public boolean onQueryTextSubmit(String query) {

@@ -22,6 +22,7 @@ import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.services.ForegroundService;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +47,8 @@ public class CurrentListMusicFragment extends Fragment {
 
 
     Context mContext;
+    int pos;
+    boolean isShuffle = false;
 
     @Override
     public void onAttach(Context context) {
@@ -122,6 +125,7 @@ public class CurrentListMusicFragment extends Fragment {
     private void register(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName());
+        intentFilter.addAction(ActionBroadCast.CURSEEK.getName());
         mContext.registerReceiver(broadcastReceiver,intentFilter );
     }
     private void unregister(){
@@ -131,12 +135,35 @@ public class CurrentListMusicFragment extends Fragment {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() != null && intent.getAction().equals(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName())) {
-                boolean isShuffle = intent.getBooleanExtra(PlayerActivity.UPDATE_SHUFFLE_KEY, false);
-                searchView.setQuery("",false );
+            if (intent.getAction() == null) {
+                return;
+            }
+            String action = intent.getAction();
 
-                adapterSearch.shuffle(isShuffle);
+            if (action.equals(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName())) {
+                boolean prevShuffle = isShuffle;
+                isShuffle = intent.getBooleanExtra(PlayerActivity.UPDATE_SHUFFLE_KEY, isShuffle);
+                if (isShuffle != prevShuffle) {
+                    ShowLog.logInfo("compare",isShuffle+" " + prevShuffle );
+                    adapterSearch.shuffle(isShuffle);
+                    searchView.setQuery("", false);
+                    searchView.setIconified(true);
+                }
 
+            } else if (action.equals(ActionBroadCast.CURSEEK.getName())) {
+                boolean prevShuffle = isShuffle;
+                isShuffle = intent.getBooleanExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
+                if(prevShuffle!=isShuffle){
+                    adapterSearch.shuffle(isShuffle);
+                }
+
+                int t = intent.getIntExtra(ForegroundService.SONG_ID, pos);
+                if (t != pos) {
+                    pos = t;
+                    if(pos<adapterSearch.getItemCount()){
+                        listSearch.scrollToPosition(pos);
+                    }
+                }
             }
         }
     };

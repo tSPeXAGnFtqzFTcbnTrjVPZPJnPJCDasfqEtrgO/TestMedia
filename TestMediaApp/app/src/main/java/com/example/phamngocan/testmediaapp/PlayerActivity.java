@@ -60,7 +60,7 @@ public class PlayerActivity extends AppCompatActivity {
     @BindView(R.id.btn_repeat)
     ImageButton btnRepeat;
 
-    Intent playIntent, pauseIntent, prevIntent, nextIntent,startFore;
+    Intent playIntent, pauseIntent, prevIntent, nextIntent, startFore;
     Intent updateIntent;
     Intent shuffleIntent, repeatIntent;
     Intent intentUpdateListShuffleBroadcast;
@@ -70,7 +70,7 @@ public class PlayerActivity extends AppCompatActivity {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
 
     String nameSong = "";
-    String nameArtist="";
+    String nameArtist = "";
     int curTime = 0;
     int totalTime = 0;
     int pos = 0;
@@ -150,20 +150,33 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
 
-    private void update() {
+    private void update(boolean wasKilled) {
         seekBar.setMax(totalTime);
         seekBar.setProgress(curTime);
         txtvDuration.setText(simpleDateFormat.format(curTime));
         txtvDurationTotal.setText(simpleDateFormat.format(totalTime));
 
-        if(!txtvName.getText().toString().equals(nameSong)){
+        if (!txtvName.getText().toString().equals(nameSong)) {
             txtvName.setText(nameSong);
             txtvArtist.setText(nameArtist);
+        }
+
+        if(wasKilled) {
+            if (isShuffle) {
+                btnShuffle.setImageResource(R.drawable.ic_shuffle_selected);
+            } else {
+                btnShuffle.setImageResource(R.drawable.ic_shuffle_unselected);
+            }
+            if (isRepeat) {
+                btnRepeat.setImageResource(R.drawable.ic_repeat_selected);
+            } else {
+                btnRepeat.setImageResource(R.drawable.ic_repeat_unselected);
+            }
         }
     }
 
     private void setupIntent() {
-        startFore = new  Intent(this, ForegroundService.class);
+        startFore = new Intent(this, ForegroundService.class);
         startFore.setAction(Action.START_FORE.getName());
 
         playIntent = new Intent(this, ForegroundService.class);
@@ -210,7 +223,13 @@ public class PlayerActivity extends AppCompatActivity {
                 curTime = intent.getIntExtra(ForegroundService.CUR_TIME_KEY, curTime);
                 nameSong = intent.getStringExtra(ForegroundService.NAME_SONG);
                 nameArtist = intent.getStringExtra(ForegroundService.NAME_ARTIST);
-                update();
+
+                boolean prevShuffle = isShuffle;
+                boolean prevRepeat = isRepeat;
+                isShuffle = intent.getBooleanExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
+                isRepeat = intent.getBooleanExtra(ForegroundService.REPEAT_KEY, isRepeat);
+
+                update(prevRepeat!=isRepeat || prevShuffle != isShuffle);
             } else if (action.equals(ActionBroadCast.PLAY.getName())) {
                 btnPlay.setImageResource(R.drawable.ic_pause);
                 isPlaying = true;
@@ -261,10 +280,10 @@ public class PlayerActivity extends AppCompatActivity {
             if (isPlaying) {
                 startService(pauseIntent);
             } else {
-                if(isStop){
-                    startFore.putExtra(ForegroundService.POS_KEY,pos);
+                if (isStop) {
+                    startFore.putExtra(ForegroundService.POS_KEY, pos);
                     startService(startFore);
-                }else {
+                } else {
                     startService(playIntent);
                 }
             }
@@ -281,13 +300,13 @@ public class PlayerActivity extends AppCompatActivity {
         btnShuffle.setOnClickListener(v -> {
             isShuffle = !isShuffle;
 
-            if(isShuffle){
+            if (isShuffle) {
                 btnShuffle.setImageResource(R.drawable.ic_shuffle_selected);
-            }else{
+            } else {
                 btnShuffle.setImageResource(R.drawable.ic_shuffle_unselected);
             }
 
-            intentUpdateListShuffleBroadcast.putExtra(UPDATE_SHUFFLE_KEY,isShuffle );
+            intentUpdateListShuffleBroadcast.putExtra(UPDATE_SHUFFLE_KEY, isShuffle);
             sendBroadcast(intentUpdateListShuffleBroadcast);
 
             shuffleIntent.putExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
@@ -296,9 +315,9 @@ public class PlayerActivity extends AppCompatActivity {
         btnRepeat.setOnClickListener(v -> {
             isRepeat = !isRepeat;
 
-            if(isRepeat){
+            if (isRepeat) {
                 btnRepeat.setImageResource(R.drawable.ic_repeat_selected);
-            }else{
+            } else {
                 btnRepeat.setImageResource(R.drawable.ic_repeat_unselected);
             }
 
