@@ -9,7 +9,7 @@ public class Song {
 
     private String nameVi,path,artistName,albumName,nameEn;
     private String nameSearch;
-    private int id,artistId,albumId;
+    private long id,artistId,albumId;
     private int position;
 
     public Song(Cursor cursor,int pos) {
@@ -49,15 +49,15 @@ public class Song {
         return albumName;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public int getArtistId() {
+    public long getArtistId() {
         return artistId;
     }
 
-    public int getAlbumId() {
+    public long getAlbumId() {
         return albumId;
     }
 

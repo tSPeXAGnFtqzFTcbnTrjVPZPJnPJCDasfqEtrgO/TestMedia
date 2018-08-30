@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Loader;
+package com.example.phamngocan.testmediaapp.loader;
 
 import android.content.Context;
 import android.database.Cursor;

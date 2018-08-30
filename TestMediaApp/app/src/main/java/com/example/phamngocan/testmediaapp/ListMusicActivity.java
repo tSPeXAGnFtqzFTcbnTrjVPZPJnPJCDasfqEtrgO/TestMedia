@@ -22,10 +22,7 @@ public class ListMusicActivity extends AppCompatActivity {
     @BindView(R.id.view_pager)
     ViewPager pager;
 
-
-
     ArrayList<Fragment> fragments = new ArrayList<>();
-    ListMusicAdapter listMusicAdapter;
 
     ViewPagerAdapter pagerAdapter;
 

@@ -13,8 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.SearchView;
 
-import com.example.phamngocan.testmediaapp.Loader.PlaylistLoader;
-import com.example.phamngocan.testmediaapp.Loader.PlaylistSongLoader;
+import com.example.phamngocan.testmediaapp.dialog.ShowPlaylistDialog;
+import com.example.phamngocan.testmediaapp.loader.PlaylistLoader;
+import com.example.phamngocan.testmediaapp.loader.PlaylistSongLoader;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
 import com.example.phamngocan.testmediaapp.function.MusicPlayer;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
@@ -49,6 +50,8 @@ interface X {
     }
 }
 
+
+
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     public static String PACKAGE_NAME;
@@ -72,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         PACKAGE_NAME = getPackageName();
         context = getApplicationContext();
         //prepareInstance();
+
+        init();
 
         getListMp3()
                 .subscribeOn(Schedulers.io())
@@ -99,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         }
                         adapterSearch.notifyDataSetChanged();
 
+                        loadPlaylist();
                     }
 
                     @Override
@@ -108,14 +114,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     @Override
                     public void onComplete() {
-                        initDatabase();
-                        loadPlaylist();
+                        //                initDatabase();
+                        //              loadPlaylist();
+                        action();
+                        setUpSearch();
+
                     }
                 });
 
 
-        action();
-        setUpSearch();
+//        action();
+//        setUpSearch();
+
 
     }
 
@@ -151,15 +161,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 });
     }
 
-    private void action() {
+    private void init() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         adapterSearch = new SearchAdapter(Instance.songList, getApplicationContext());
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
+    }
 
-        Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-        //Intent intent = new Intent(MainActivity.this,ListMusicActivity.class);
+    private void action() {
+
+
+        //Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+        Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);
@@ -293,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         long state = MusicPlayer.createPlaylist(getApplicationContext(), name);
 
         long[] ids = new long[Instance.songList.size()];
-        ShowLog.logInfo("size ids",ids.length );
+        ShowLog.logInfo("size ids", ids.length);
         for (int i = 0; i < Instance.songList.size(); i++) {
             ids[i] = Instance.songList.get(i).getId();
         }
@@ -310,9 +324,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private void loadPlaylist() {
         ArrayList<Playlist> playlists = PlaylistLoader.load(getApplicationContext());
         if (playlists != null) {
+            Instance.playlists.addAll(playlists);
             for (Playlist playlist : playlists) {
                 ArrayList<Song> songs = PlaylistSongLoader.getSongFromPlaylist(getApplicationContext(), playlist.getmId());
-                ShowLog.logInfo("size " + playlist.getmName(),playlist.getmCount() );
+                ShowLog.logInfo("size " + playlist.getmName(), playlist.getmCount());
                 for (Song song : songs) {
                     ShowLog.logInfo(playlist.getmName(), song.getNameVi());
                 }
