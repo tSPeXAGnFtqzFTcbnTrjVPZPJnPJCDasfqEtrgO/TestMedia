@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PlaylistSongLoader {
     public static ArrayList<Song> getSongFromPlaylist(Context context, long playlistId) {
@@ -18,6 +19,7 @@ public class PlaylistSongLoader {
                 String songName,artist;
 
                 id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID));
+
                 songs.add(new Song(cursor,songs.size()));
 
             } while (cursor.moveToNext());

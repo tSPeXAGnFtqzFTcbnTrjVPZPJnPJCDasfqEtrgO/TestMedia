@@ -1,11 +1,14 @@
 package com.example.phamngocan.testmediaapp.model;
 
 import android.database.Cursor;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import com.example.phamngocan.testmediaapp.function.ConvertLanguage;
 
-public class Song {
+import java.io.Serializable;
+
+public class Song implements Serializable {
 
     private String nameVi,path,artistName,albumName,nameEn;
     private String nameSearch;

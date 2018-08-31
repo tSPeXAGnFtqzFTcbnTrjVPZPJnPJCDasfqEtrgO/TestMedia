@@ -7,16 +7,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.WebSettings;
-import android.widget.LinearLayout;
 
 import com.example.phamngocan.testmediaapp.Instance;
-import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.PlaylistAdapter;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
@@ -38,9 +34,23 @@ public class ShowPlaylistDialog extends DialogFragment {
 
     PlaylistAdapter.ItemClick itemClick;
 
-    private static final String keySong = "key_song";
+    private static final String keySongId = "key_song";
+    private static final String keySongArr = "key_song_arr";
+
+    long[] ids;
+    private ArrayList<Song> mSongs;
 
 
+    public static ShowPlaylistDialog newInstance(ArrayList<Song> songs){
+        ShowPlaylistDialog dialog = new ShowPlaylistDialog();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(keySongArr,songs );
+        dialog.setArguments(bundle);
+
+        return dialog;
+
+    }
     public static void newInstance(Song song) {
 
         long[] id = new long[1];
@@ -49,10 +59,11 @@ public class ShowPlaylistDialog extends DialogFragment {
     }
 
     public static ShowPlaylistDialog newInstance(long[] id) {
+        ShowLog.logInfo("show pp","newInstance ");
         ShowPlaylistDialog dialog = new ShowPlaylistDialog();
 
         Bundle bundle = new Bundle();
-        bundle.putLongArray(keySong, id);
+        bundle.putLongArray(keySongId, id);
         dialog.setArguments(bundle);
 
         return dialog;
@@ -73,6 +84,7 @@ public class ShowPlaylistDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        ShowLog.logInfo("show pp","onCreateDialog ");
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
@@ -80,16 +92,19 @@ public class ShowPlaylistDialog extends DialogFragment {
 
     @Override
     public void onStart() {
+        ShowLog.logInfo("show pp","onStart ");
         super.onStart();
 
         Dialog dialog = getDialog();
         if(dialog!=null){
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, 400);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, 500);
         }
     }
 
     private void init(){
-        int id = getArguments().getInt(keySong);
+        //ids = getArguments().getLongArray(keySongId);
+        //int id = getArguments().getInt(keySongId);
+        mSongs = (ArrayList<Song>) getArguments().getSerializable(keySongArr);
         setItemClick();
 
 
@@ -109,10 +124,14 @@ public class ShowPlaylistDialog extends DialogFragment {
         itemClick = (view, position) -> {
             ShowLog.logInfo("adapter pp click",position );
             if (position == 0) {
-
+                ShowAddPlaylistDialog.newInstance(mSongs)
+                        .show(getActivity().getSupportFragmentManager(),"add Playlist" );
             } else {
-
+                Instance.playlists.get(position-1).addSongArray(getContext(),mSongs);
             }
+            getDialog().cancel();
+            getDialog().dismiss();
+
         };
     }
 }
