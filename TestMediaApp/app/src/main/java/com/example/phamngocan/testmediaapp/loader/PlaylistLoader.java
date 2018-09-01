@@ -19,10 +19,11 @@ public class PlaylistLoader {
 
         if(cursor!=null && cursor.moveToFirst()){
             do{
-                int id = cursor.getInt(0);
+                long id = cursor.getLong(0);
                 String name = cursor.getString(1);
                 int count = AndtUtils.countSongInPlaylist(context,id );
-                playlists.add(new Playlist(id,count,name));
+                long duration = AndtUtils.getDurationPlaylist(context,id );
+                playlists.add(new Playlist(id,count,name,duration));
             }while (cursor.moveToNext());
         }
 

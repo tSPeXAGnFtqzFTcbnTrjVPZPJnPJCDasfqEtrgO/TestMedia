@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.phamngocan.testmediaapp.adapter.ListMusicAdapter;
 import com.example.phamngocan.testmediaapp.adapter.ViewPagerAdapter;
 import com.example.phamngocan.testmediaapp.fragment.ListMusicFragment;
+import com.example.phamngocan.testmediaapp.fragment.PlayListFragment;
 
 import java.util.ArrayList;
 
@@ -37,9 +38,12 @@ public class ListMusicActivity extends AppCompatActivity {
 
     private void init() {
         fragments.add(new ListMusicFragment());
+        fragments.add(new PlayListFragment());
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
         pager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(pager);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     }
 

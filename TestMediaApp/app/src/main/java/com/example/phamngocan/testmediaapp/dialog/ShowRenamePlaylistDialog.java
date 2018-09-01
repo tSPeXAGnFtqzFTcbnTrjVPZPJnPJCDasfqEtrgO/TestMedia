@@ -13,20 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
-import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
-import com.example.phamngocan.testmediaapp.function.MusicPlayer;
-import com.example.phamngocan.testmediaapp.function.ShowLog;
-import com.example.phamngocan.testmediaapp.model.Playlist;
-import com.example.phamngocan.testmediaapp.model.Song;
-
-import java.util.ArrayList;
+import com.example.phamngocan.testmediaapp.utils.AndtUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ShowAddPlaylistDialog extends DialogFragment {
+public class ShowRenamePlaylistDialog extends DialogFragment {
+
+    private static ShowRenamePlaylistDialog dialog;
 
     @BindView(R.id.layout_add_playlist)
     ConstraintLayout layout;
@@ -39,15 +36,23 @@ public class ShowAddPlaylistDialog extends DialogFragment {
     @BindView(R.id.btn_cancel)
     Button btnCancel;
 
-    private static final String keySongArr = "key_song_arr";
+    private static final String keyPlaylistId = "keyPlaylistId";
 
-    private ArrayList<Song> mSongs;
 
-    public static ShowAddPlaylistDialog newInstance(ArrayList<Song> songs) {
-        ShowAddPlaylistDialog dialog = new ShowAddPlaylistDialog();
+    long mPlaylistId;
+    private OnComplete onComplete;
+
+    public interface OnComplete {
+        void complete(String newName);
+    }
+
+    public static ShowRenamePlaylistDialog newInstance(long playlistId) {
+        if (dialog == null) {
+            dialog = new ShowRenamePlaylistDialog();
+        }
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable(keySongArr, songs);
+        bundle.putLong(keyPlaylistId, playlistId);
 
         dialog.setArguments(bundle);
         return dialog;
@@ -56,7 +61,7 @@ public class ShowAddPlaylistDialog extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.item_dialog_add_playlist, container, false);
+        View view = inflater.inflate(R.layout.item_dialog_rename_playlist, container, false);
         ButterKnife.bind(this, view);
 
         init();
@@ -86,7 +91,7 @@ public class ShowAddPlaylistDialog extends DialogFragment {
     }
 
     private void init() {
-        mSongs = (ArrayList<Song>) getArguments().getSerializable(keySongArr);
+        mPlaylistId = getArguments().getLong(keyPlaylistId);
 
         btnCancel.setOnClickListener(v -> {
             getDialog().dismiss();
@@ -94,17 +99,24 @@ public class ShowAddPlaylistDialog extends DialogFragment {
         btnOk.setOnClickListener(v -> {
             String s = edit_playlist.getText().toString();
             if (s != null && s.length() > 0) {
-                long id = MusicPlayer.createPlaylist(getContext(), s);
-                ShowLog.logInfo("id create", id );
-                if (id == -1) {
+                boolean isOk = AndtUtils.renamePlaylist(getContext(), mPlaylistId, s);
+
+                if (!isOk) {
                     inputLayout.setError("Playlist da ton tai");
                 } else {
-                    Instance.playlists.add(new Playlist(id, 1, s));
-                    Instance.playlists.get(Instance.playlists.size() - 1).
-                            addSongArray(getContext(), mSongs);
+                    if (onComplete != null) {
+                        onComplete.complete(s);
+                    }
+                    Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }
             }
         });
     }
+
+    public ShowRenamePlaylistDialog setOnComplete(OnComplete onComplete) {
+        this.onComplete = onComplete;
+        return dialog;
+    }
+
 }
