@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.phamngocan.testmediaapp.R;
-import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Playlist;
 
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ public class PlaylistDialogAdapter extends  RecyclerView.Adapter<PlaylistDialogA
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
         holder.txtvName.setText(playlists.get(position).getmName());
-        ShowLog.logInfo("name playlist adapter",playlists.get(position).getmName());
     }
 
     @Override

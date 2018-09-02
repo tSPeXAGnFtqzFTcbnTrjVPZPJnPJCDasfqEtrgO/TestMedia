@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.example.phamngocan.testmediaapp.ListMusicActivity;
+import com.example.phamngocan.testmediaapp.DetailPlaylistActivity;
 import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
@@ -25,16 +25,17 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ListMusicAdapter extends RecyclerView.Adapter<ListMusicAdapter.Holder> {
+public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlaylistAdapter.Holder> {
 
     ArrayList<Song> mSongs;
     Context context;
-    ListMusicActivity listMusicActivity;
+    DetailPlaylistActivity detailPlaylistActivity;
 
     ArrayList<Boolean> checkList = new ArrayList<>();
 
     boolean isSelect = false;
     int numSelect = 0;
+    int positionPlaylist;
 
     private OnLongClickListener longClickListener;
     private OnClickListener clickListener;
@@ -44,17 +45,18 @@ public class ListMusicAdapter extends RecyclerView.Adapter<ListMusicAdapter.Hold
     }
 
     public interface OnClickListener {
-        void onClick(View view, int position,int numSelect,ArrayList<Boolean> checkList);
+        void onClick(View view, int position, int numSelect, ArrayList<Boolean> checkList);
     }
 
-    public ListMusicAdapter(ArrayList<Song> songs, Context context,
+    public ListMusicPlaylistAdapter(ArrayList<Song> songs,int positionPlaylist, Context context,
                             OnLongClickListener onLongClickListener, OnClickListener onClickListener) {
         this.mSongs = songs;
         this.context = context;
         longClickListener = onLongClickListener;
         clickListener = onClickListener;
+        this.positionPlaylist = positionPlaylist;
 
-        listMusicActivity = (ListMusicActivity) context;
+        detailPlaylistActivity = (DetailPlaylistActivity) context;
 
         for (int i = 0; i < songs.size(); i++) {
             checkList.add(false);
@@ -119,7 +121,7 @@ public class ListMusicAdapter extends RecyclerView.Adapter<ListMusicAdapter.Hold
                     notifyDataSetChanged();
 
                     longClickListener.onLongClick(view, pos);
-                    clickListener.onClick(view, pos,numSelect,checkList);
+                    clickListener.onClick(view, pos, numSelect, checkList);
 
 
                     return true;
@@ -140,9 +142,9 @@ public class ListMusicAdapter extends RecyclerView.Adapter<ListMusicAdapter.Hold
                         checkBox.setChecked(checkList.get(pos));
                         numSelect++;
                     }
-                    clickListener.onClick(view, pos,numSelect,checkList);
+                    clickListener.onClick(view, pos, numSelect, checkList);
                 } else {
-                    SetListPlay.playOneInAll(pos);//new add
+                    SetListPlay.playOneInPlaylist(positionPlaylist,pos);//new add
 
                     Intent intentService = new Intent(context, ForegroundService.class);
                     intentService.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

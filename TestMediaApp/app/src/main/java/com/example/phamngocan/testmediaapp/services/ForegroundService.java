@@ -18,6 +18,7 @@ import android.widget.RemoteViews;
 
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.MainActivity;
+import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
@@ -288,7 +289,7 @@ public class ForegroundService extends Service {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        noificationMainIntent = new Intent(this, MainActivity.class);
+        noificationMainIntent = new Intent(this, PlayerActivity.class);
         noificationMainIntent.setAction(Action.MAIN.getName());
         noificationMainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         mainPending = PendingIntent.getActivity(this, REQUEST_CODE, noificationMainIntent, 0);

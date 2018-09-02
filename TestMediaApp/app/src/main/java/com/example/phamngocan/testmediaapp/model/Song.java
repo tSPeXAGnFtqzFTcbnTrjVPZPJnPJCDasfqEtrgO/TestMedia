@@ -1,7 +1,6 @@
 package com.example.phamngocan.testmediaapp.model;
 
 import android.database.Cursor;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import com.example.phamngocan.testmediaapp.function.ConvertLanguage;
@@ -16,7 +15,6 @@ public class Song implements Serializable {
     private int duration;
     private int position;
 
-
     public Song(Cursor cursor,int pos) {
         position = pos;
         nameVi = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
@@ -25,7 +23,7 @@ public class Song implements Serializable {
         nameSearch = nameEn.replaceAll(" ","" );
         duration = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
 
-        id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
+        id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
 
         path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
         artistName = cursor.getString(cursor
@@ -39,6 +37,27 @@ public class Song implements Serializable {
 
     }
 
+    public Song(Cursor cursor,int pos,long id){
+        position = pos;
+        nameVi = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+        nameVi = nameVi.trim();
+        nameEn  = ConvertLanguage.convert(nameVi);
+        nameSearch = nameEn.replaceAll(" ","" );
+        duration = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+
+        this.id = id;
+
+        path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+        artistName = cursor.getString(cursor
+                .getColumnIndex(MediaStore.Audio.Media.ARTIST));
+        artistId = cursor.getInt(cursor
+                .getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
+        albumName = cursor.getString(cursor
+                .getColumnIndex(MediaStore.Audio.Media.ALBUM));
+        albumId = cursor.getInt(cursor
+                .getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+
+    }
     public String getNameVi() {
         return nameVi;
     }

@@ -3,7 +3,7 @@
     package="com.example.phamngocan.testmediaapp">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +23,10 @@
         <service android:name=".services.ForegroundService" />
 
         <activity android:name=".ListMusicActivity" />
-        <activity android:name=".PlayerActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+        <activity
+            android:name=".PlayerActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity android:name=".DetailPlaylistActivity"></activity>
     </application>
 
 </manifest>

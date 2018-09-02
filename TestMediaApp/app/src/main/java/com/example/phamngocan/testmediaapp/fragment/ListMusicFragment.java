@@ -1,5 +1,6 @@
 package com.example.phamngocan.testmediaapp.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,15 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.example.phamngocan.testmediaapp.Instance;
+import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.ListMusicAdapter;
+import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.dialog.ShowPlaylistDialog;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
-
-import org.apache.commons.lang3.ArrayUtils;
+import com.example.phamngocan.testmediaapp.services.ForegroundService;
+import com.example.phamngocan.testmediaapp.utils.SetListPlay;
 
 import java.util.ArrayList;
 
@@ -28,6 +32,8 @@ import butterknife.ButterKnife;
 
 public class ListMusicFragment extends Fragment {
 
+    @BindView(R.id.btn_playall)
+    TextView btnPlayAll;
     @BindView(R.id.recycle_song)
     RecyclerView recyclerSong;
     @BindView(R.id.bottom_menu)
@@ -40,6 +46,7 @@ public class ListMusicFragment extends Fragment {
     ImageButton btnRemove;
     @BindView(R.id.btn_add)
     ImageButton btnAdd;
+
     ListMusicAdapter musicAdapter;
 
     ListMusicAdapter.OnLongClickListener onLongClickListener;
@@ -78,13 +85,16 @@ public class ListMusicFragment extends Fragment {
                     songs.add(Instance.songList.get(i));
                 }
             }
-            ShowLog.logInfo("click fragment", position);
         };
-        musicAdapter = new ListMusicAdapter(Instance.songList, getContext(), onLongClickListener,onClickListener);
+        musicAdapter = new ListMusicAdapter(Instance.baseSong, getContext(), onLongClickListener,onClickListener);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerSong.setLayoutManager(layoutManager);
         recyclerSong.setAdapter(musicAdapter);
+
+        if(musicAdapter.getItemCount()<1){
+            btnPlayAll.setVisibility(View.GONE);
+        }
 
 
     }
@@ -103,11 +113,24 @@ public class ListMusicFragment extends Fragment {
     }
 
     private void setClick() {
+        btnPlayAll.setOnClickListener(v->{
+            SetListPlay.playAll();
+
+            Intent intent = new Intent(getContext(), ForegroundService.class);
+            intent.putExtra(ForegroundService.POS_KEY, 0);
+            intent.setAction(Action.START_FORE.getName());
+            getContext().startService(intent);
+
+            startActivity(new Intent(getContext(), PlayerActivity.class));
+        });
         btnAdd.setOnClickListener(v -> {
 
 //            idsArr = songs.toArray(new Long[0]);
 //            ShowPlaylistDialog.newInstance(ArrayUtils.toPrimitive(idsArr))
 //                    .show(getActivity().getSupportFragmentManager(),"ls" );
+
+            ShowLog.logInfo("add to pp",null );
+
             ShowPlaylistDialog.newInstance(songs)
                     .show(getActivity().getSupportFragmentManager(),"xx" );
 

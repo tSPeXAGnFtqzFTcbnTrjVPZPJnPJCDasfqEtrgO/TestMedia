@@ -3,6 +3,7 @@ package com.example.phamngocan.testmediaapp.model;
 import android.content.Context;
 
 import com.example.phamngocan.testmediaapp.function.MusicPlayer;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,22 +51,44 @@ public class Playlist {
         return totalDuration;
     }
 
-    public void addSong(Song song) {
+    public ArrayList<Song> getSongs() {
+        return songs;
+    }
+
+    public void addSong(Context context, Song song) {
         if (markId.containsKey(song.getId())) {
             songs.set(markId.get(song.getId()), song);
         } else {
             markId.put(song.getId(), songs.size());
             songs.add(song);
             totalDuration += song.getDuration();
+            mCount++;
+
+            long[] ids = new long[1];
+            ids[0] = song.getId();
+
+            MusicPlayer.addToPlaylist(context, ids, mId);
+
         }
     }
 
     public void addSongArray(Context context, ArrayList<Song> songs) {
-        long[] ids = new long[songs.size()];
+
         for (int i = 0; i < songs.size(); i++) {
-            addSong(songs.get(i));
-            ids[i] = songs.get(i).getId();
+            ShowLog.logInfo("adding", songs.get(i).getNameSearch() + "_" + mId);
+            addSong(context, songs.get(i));
         }
-        MusicPlayer.addToPlaylist(context, ids, mId);
+
     }
+
+    public void pushFirstTime(ArrayList<Song> songs) {
+        totalDuration = mCount = 0;
+        for (int i=0;i<songs.size();i++) {
+            markId.put(songs.get(i).getId(), songs.size());
+            this.songs.add(songs.get(i));
+            totalDuration += songs.get(i).getDuration();
+            mCount++;
+        }
+    }
+
 }

@@ -13,13 +13,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.SearchView;
 
-import com.example.phamngocan.testmediaapp.dialog.ShowPlaylistDialog;
-import com.example.phamngocan.testmediaapp.loader.PlaylistLoader;
-import com.example.phamngocan.testmediaapp.loader.PlaylistSongLoader;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
 import com.example.phamngocan.testmediaapp.function.MusicPlayer;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.loader.PlaylistLoader;
+import com.example.phamngocan.testmediaapp.loader.PlaylistSongLoader;
 import com.example.phamngocan.testmediaapp.model.Playlist;
 import com.example.phamngocan.testmediaapp.model.Song;
 
@@ -93,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                     @Override
                     public void onNext(List<Song> songs) {
-                        Instance.songList.clear();
+
+                        Instance.baseSong.addAll(songs);
                         Instance.songList.addAll(songs);
                         Instance.songShuffleList.addAll(Instance.songList);
                         Collections.shuffle(Instance.songShuffleList);

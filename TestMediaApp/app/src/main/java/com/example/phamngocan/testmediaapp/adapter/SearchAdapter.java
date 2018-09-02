@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,9 +81,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
                 int pos = getLayoutPosition();
                 int index = songs.get(pos).getPosition();
 
+                ShowLog.logInfo("search adapter", songs.size()+"_"+index);
+
                 Intent intent  = new Intent(context, ForegroundService.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(ForegroundService.POS_KEY,index);
+                intent.putExtra(ForegroundService.POS_KEY,pos);
                 intent.setAction(Action.START_FORE.getName());
 
                 Log.d("AAA","recycler "+index );
