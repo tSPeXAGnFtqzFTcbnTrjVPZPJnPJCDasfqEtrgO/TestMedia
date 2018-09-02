@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private void loadPlaylist() {
         ArrayList<Playlist> playlists = PlaylistLoader.load(getApplicationContext());
         if (playlists != null) {
+            Instance.playlists.clear();
             Instance.playlists.addAll(playlists);
             for (Playlist playlist : playlists) {
                 ArrayList<Song> songs = PlaylistSongLoader.getSongFromPlaylist(getApplicationContext(), playlist.getmId());
