@@ -105,4 +105,5 @@ public class Song implements Serializable {
     public int getDuration() {
         return duration;
     }
+
 }

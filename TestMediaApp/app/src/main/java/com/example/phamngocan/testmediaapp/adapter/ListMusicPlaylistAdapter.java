@@ -108,6 +108,8 @@ public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlay
             super(itemView);
             ButterKnife.bind(this, itemView);
 
+            txtvName.setSelected(true);
+
             itemView.setTag(getLayoutPosition());
 
             checkBox.setClickable(false);

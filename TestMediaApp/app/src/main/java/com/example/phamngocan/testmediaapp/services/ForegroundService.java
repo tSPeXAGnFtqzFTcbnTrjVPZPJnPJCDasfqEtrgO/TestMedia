@@ -219,11 +219,13 @@ public class ForegroundService extends Service {
         do {
             ShowLog.logInfo("fore", Instance.songList.get(pos).getNameVi());
 
-            if (isEnd && isRepeat) {//repeat if end of currentSong (false when event next-prev-start
-                if (pos == 0) {
-                    pos = Instance.songList.size();
+            if (isEnd) {//repeat if end of currentSong (false when event next-prev-start
+                if (isRepeat) {
+                    if (pos == 0) {
+                        pos = Instance.songList.size();
+                    }
+                    pos--;
                 }
-                pos--;
             }
 
             if (isShuffle) {
@@ -375,8 +377,8 @@ public class ForegroundService extends Service {
                 .subscribeOn(Schedulers.computation())
                 .subscribe(lLong -> {
                     if (mediaPlayer != null) {
-                        intentUpdateBroadcast.putExtra(REPEAT_KEY,isRepeat );
-                        intentUpdateBroadcast.putExtra(SHUFFLE_KEY,isShuffle );
+                        intentUpdateBroadcast.putExtra(REPEAT_KEY, isRepeat);
+                        intentUpdateBroadcast.putExtra(SHUFFLE_KEY, isShuffle);
                         intentUpdateBroadcast.putExtra(SONG_ID, pos);
                         intentUpdateBroadcast.putExtra(NAME_SONG, currentSong.getNameVi());
                         intentUpdateBroadcast.putExtra(NAME_ARTIST, currentSong.getArtistName());

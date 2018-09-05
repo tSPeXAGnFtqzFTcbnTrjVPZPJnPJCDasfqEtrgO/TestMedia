@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,14 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.SearchView;
 
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
 import com.example.phamngocan.testmediaapp.function.MusicPlayer;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.loader.AlbumLoader;
 import com.example.phamngocan.testmediaapp.loader.PlaylistLoader;
 import com.example.phamngocan.testmediaapp.loader.PlaylistSongLoader;
+import com.example.phamngocan.testmediaapp.model.Album;
 import com.example.phamngocan.testmediaapp.model.Playlist;
 import com.example.phamngocan.testmediaapp.model.Song;
 
@@ -63,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     SearchAdapter adapterSearch;
     @BindView(R.id.searchView)
     SearchView searchView;
+    @BindView(R.id.img_album)
+    ImageView imgAlbum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         adapterSearch.notifyDataSetChanged();
 
                         loadPlaylist();
+                        loadAlbum();
                     }
 
                     @Override
@@ -176,7 +183,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        startActivity(intent);
+        //
+         startActivity(intent);
 
         String s = "abx";
 
@@ -338,6 +346,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
+    private void loadAlbum(){
+        ArrayList<Album> albums = AlbumLoader.load(getApplicationContext());
+        Instance.albums.addAll(albums);
+        if(albums!=null){
+            for(int i=0;i<albums.size();i++){
+                imgAlbum.setImageBitmap(BitmapFactory.decodeFile(albums.get(i).getPathImage()));
+            }
+        }
+
+    }
 
     @Override
     public boolean onQueryTextSubmit(String query) {

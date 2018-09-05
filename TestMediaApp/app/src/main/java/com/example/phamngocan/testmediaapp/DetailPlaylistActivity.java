@@ -31,7 +31,6 @@ public class DetailPlaylistActivity extends AppCompatActivity {
     @BindView(R.id.recycle_song)
     RecyclerView recyclerSong;
     @BindView(R.id.bottom_menu)
-
     FrameLayout frameLayout;
     @BindView(R.id.btn_apply)
     ImageButton btnApply;
@@ -76,7 +75,7 @@ public class DetailPlaylistActivity extends AppCompatActivity {
         btnEdit.setVisibility(View.GONE);
 
         onLongClickListener = (view, posion) -> {
-            ShowLog.logVar("position long in frag", posion);
+            ShowLog.logVar("posAlbum long in frag", posion);
             showBottomMenu(true);
         };
         onClickListener = (view, pos, numSelect, checkList) -> {
@@ -91,7 +90,7 @@ public class DetailPlaylistActivity extends AppCompatActivity {
             }
         };
 
-        ShowLog.logInfo("position pp", Instance.playlists.size() + "_" + position);
+        ShowLog.logInfo("posAlbum pp", Instance.playlists.size() + "_" + position);
         musicAdapter = new ListMusicPlaylistAdapter(Instance.playlists.get(position).getSongs(),
                 position, DetailPlaylistActivity.this, onLongClickListener, onClickListener);
 

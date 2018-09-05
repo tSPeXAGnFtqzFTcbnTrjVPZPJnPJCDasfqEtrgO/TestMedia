@@ -6,8 +6,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.phamngocan.testmediaapp.adapter.ListMusicAdapter;
 import com.example.phamngocan.testmediaapp.adapter.ViewPagerAdapter;
+import com.example.phamngocan.testmediaapp.fragment.AlbumFragment;
 import com.example.phamngocan.testmediaapp.fragment.ListMusicFragment;
 import com.example.phamngocan.testmediaapp.fragment.PlayListFragment;
 
@@ -38,6 +38,7 @@ public class ListMusicActivity extends AppCompatActivity {
 
     private void init() {
         fragments.add(new ListMusicFragment());
+        fragments.add(new AlbumFragment());
         fragments.add(new PlayListFragment());
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
         pager.setAdapter(pagerAdapter);

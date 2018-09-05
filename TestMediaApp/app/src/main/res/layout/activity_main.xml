@@ -26,4 +26,12 @@
         android:layout_marginRight="40dp"
         />
 
+    <ImageView
+        android:id="@+id/img_album"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"/>
+
 </RelativeLayout>

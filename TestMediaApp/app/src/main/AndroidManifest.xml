@@ -26,7 +26,8 @@
         <activity
             android:name=".PlayerActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-        <activity android:name=".DetailPlaylistActivity"></activity>
+        <activity android:name=".DetailPlaylistActivity" />
+        <activity android:name=".DetailAlbumActivity"></activity>
     </application>
 
 </manifest>
