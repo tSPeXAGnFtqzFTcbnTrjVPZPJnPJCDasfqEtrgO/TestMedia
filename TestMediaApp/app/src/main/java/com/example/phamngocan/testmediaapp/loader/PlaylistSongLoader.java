@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
-import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ public class PlaylistSongLoader {
                 String songName,artist;
 
                 id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID));
-
-                ShowLog.logInfo("name",cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Playlists.Members.TITLE)));
 
                 songs.add(new Song(cursor,songs.size()));
 

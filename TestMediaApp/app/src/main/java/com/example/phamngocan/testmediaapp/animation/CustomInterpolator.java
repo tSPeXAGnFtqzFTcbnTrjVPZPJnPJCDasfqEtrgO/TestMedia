@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Animation;
+package com.example.phamngocan.testmediaapp.animation;
 
 import android.support.v4.view.animation.PathInterpolatorCompat;
 import android.view.animation.Interpolator;

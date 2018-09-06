@@ -4,26 +4,33 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 
 import com.example.phamngocan.testmediaapp.function.ConvertLanguage;
+import com.example.phamngocan.testmediaapp.function.ShowLog;
 
 import java.io.Serializable;
 
 public class Song implements Serializable {
 
-    private String nameVi,path,artistName,albumName,nameEn;
+    private String nameVi, path, artistName, albumName, nameEn;
     private String nameSearch;
-    private long id,artistId,albumId;
+    private long id, idInPlaylist, artistId, albumId;
     private int duration;
     private int position;
 
-    public Song(Cursor cursor,int pos) {
+    public Song(Cursor cursor, int pos) {
         position = pos;
         nameVi = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
         nameVi = nameVi.trim();
-        nameEn  = ConvertLanguage.convert(nameVi);
-        nameSearch = nameEn.replaceAll(" ","" );
+        nameEn = ConvertLanguage.convert(nameVi);
+        nameSearch = nameEn.replaceAll(" ", "");
         duration = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
 
         id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
+        try {
+            idInPlaylist = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID));
+        }catch (Exception e){
+            ShowLog.logInfo("error in song class",e.getMessage() );
+            idInPlaylist = -1;
+        }
 
         path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
         artistName = cursor.getString(cursor
@@ -37,12 +44,12 @@ public class Song implements Serializable {
 
     }
 
-    public Song(Cursor cursor,int pos,long id){
+    public Song(Cursor cursor, int pos, long id) {
         position = pos;
         nameVi = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
         nameVi = nameVi.trim();
-        nameEn  = ConvertLanguage.convert(nameVi);
-        nameSearch = nameEn.replaceAll(" ","" );
+        nameEn = ConvertLanguage.convert(nameVi);
+        nameSearch = nameEn.replaceAll(" ", "");
         duration = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
 
         this.id = id;
@@ -58,6 +65,7 @@ public class Song implements Serializable {
                 .getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 
     }
+
     public String getNameVi() {
         return nameVi;
     }
@@ -106,4 +114,7 @@ public class Song implements Serializable {
         return duration;
     }
 
+    public long getIdInPlaylist() {
+        return idInPlaylist;
+    }
 }

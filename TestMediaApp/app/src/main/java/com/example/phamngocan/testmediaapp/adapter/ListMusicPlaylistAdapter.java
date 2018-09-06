@@ -79,6 +79,7 @@ public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlay
         holder.txtvArtist.setText(mSongs.get(position).getArtistName());
 
         if (isSelect) {
+            ShowLog.logVar("check", "" + mSongs.size() + "_" + checkList.size());
             ShowLog.logVar("check", "" + mSongs.get(position).getNameEn() + "_" + checkList.get(position));
 
             holder.checkBox.setVisibility(View.VISIBLE);
@@ -173,14 +174,6 @@ public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlay
         notifyDataSetChanged();
     }
 
-
-    public void callAddToPlaylist() {
-        ShowLog.logInfo("adapter", "add");
-    }
-
-    public void callEdit() {
-        ShowLog.logInfo("adapter", "Edit");
-    }
 
     public void callRemove() {
         ShowLog.logInfo("adapter", "remove");

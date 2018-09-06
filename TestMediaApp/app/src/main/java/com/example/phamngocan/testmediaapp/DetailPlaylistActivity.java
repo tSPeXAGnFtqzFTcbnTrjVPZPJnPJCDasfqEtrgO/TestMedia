@@ -1,7 +1,9 @@
 package com.example.phamngocan.testmediaapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,14 +15,20 @@ import android.widget.TextView;
 import com.example.phamngocan.testmediaapp.adapter.ListMusicPlaylistAdapter;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.loader.PlaylistSongLoader;
 import com.example.phamngocan.testmediaapp.model.Song;
 import com.example.phamngocan.testmediaapp.services.ForegroundService;
+import com.example.phamngocan.testmediaapp.utils.AndtUtils;
 import com.example.phamngocan.testmediaapp.utils.SetListPlay;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 
 public class DetailPlaylistActivity extends AppCompatActivity {
 
@@ -90,7 +98,9 @@ public class DetailPlaylistActivity extends AppCompatActivity {
             }
         };
 
-        ShowLog.logInfo("posAlbum pp", Instance.playlists.size() + "_" + position);
+        ShowLog.logInfo("posAlbum pp", Instance.playlists.get(position).getSongs().size()
+                + "_" + position);
+
         musicAdapter = new ListMusicPlaylistAdapter(Instance.playlists.get(position).getSongs(),
                 position, DetailPlaylistActivity.this, onLongClickListener, onClickListener);
 
@@ -136,9 +146,64 @@ public class DetailPlaylistActivity extends AppCompatActivity {
             showBottomMenu(false);
         });
         btnRemove.setOnClickListener(v -> {
-            musicAdapter.callRemove();
+            AlertDialog.Builder alBuilder = new AlertDialog.Builder(DetailPlaylistActivity.this);
+            alBuilder.setMessage("Delete");
+            alBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    asyncDeleteSong();
+                }
+            });
+            alBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            alBuilder.show();
         });
     }
 
+    private void asyncDeleteSong() {
+        long[] ids = new long[songs.size()];
+        for (int i = 0; i < songs.size(); i++) {
+            ids[i] = songs.get(i).getIdInPlaylist();
+        }
+
+        ShowLog.logInfo("prepare complete",null );
+
+        Completable.fromCallable((Callable<Void>) () -> {
+            AndtUtils.deleteSongPlaylist(getApplicationContext(),
+                    Instance.playlists.get(position).getmId(),
+                    ids,
+                    position);
+            return null;
+        }).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                if (songs.size() == Instance.playlists.get(position).getSongs().size()) {
+
+                } else {
+                    Instance.playlists.get(position).pushFirstTime(
+                            PlaylistSongLoader.getSongFromPlaylist(getApplicationContext(),
+                                    Instance.playlists.get(position).getmId()));
+
+                    ShowLog.logInfo("num song after del",Instance.playlists.get(position).getSongs().size() );
+                    showBottomMenu(false);
+                    musicAdapter.callApply();
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+    }
 
 }

@@ -1,4 +1,4 @@
-package com.example.phamngocan.testmediaapp.Animation;
+package com.example.phamngocan.testmediaapp.animation;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
