@@ -66,6 +66,12 @@ public class Song implements Serializable {
 
     }
 
+    public void setNameVi(String nameVi) {
+        this.nameVi = nameVi;
+        nameEn = ConvertLanguage.convert(nameVi);
+        nameSearch = nameEn.replaceAll(" ", "");
+    }
+
     public String getNameVi() {
         return nameVi;
     }

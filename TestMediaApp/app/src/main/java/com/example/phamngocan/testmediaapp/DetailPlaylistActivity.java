@@ -186,7 +186,8 @@ public class DetailPlaylistActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 if (songs.size() == Instance.playlists.get(position).getSongs().size()) {
-
+                    Instance.playlists.remove(position);
+                    finish();
                 } else {
                     Instance.playlists.get(position).pushFirstTime(
                             PlaylistSongLoader.getSongFromPlaylist(getApplicationContext(),

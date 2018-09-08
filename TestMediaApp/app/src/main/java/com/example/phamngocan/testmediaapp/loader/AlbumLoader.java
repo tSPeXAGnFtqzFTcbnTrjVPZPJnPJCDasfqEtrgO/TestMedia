@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
-import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Album;
 import com.example.phamngocan.testmediaapp.model.Song;
 
@@ -41,10 +40,10 @@ public class AlbumLoader {
 
                 songs = AlbumSongLoader.load(context,id );
 
-                ShowLog.logInfo("query album id", id );
-                ShowLog.logInfo("query album name", name );
-                ShowLog.logInfo("query album num of song", numSong );
-                ShowLog.logInfo("query album artist", artist );
+//                ShowLog.logInfo("query album id", id );
+//                ShowLog.logInfo("query album name", name );
+//                ShowLog.logInfo("query album num of song", numSong );
+//                ShowLog.logInfo("query album artist", artist );
 
                 albums.add(new Album(cursor,songs) );
 

@@ -1,6 +1,9 @@
 package com.example.phamngocan.testmediaapp.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +22,7 @@ import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.ListMusicAdapter;
 import com.example.phamngocan.testmediaapp.constant.Action;
+import com.example.phamngocan.testmediaapp.dialog.ShowDialogEditSong;
 import com.example.phamngocan.testmediaapp.dialog.ShowPlaylistDialog;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
@@ -31,6 +35,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ListMusicFragment extends Fragment {
+
+    public static final String actionNotify = "actionNotify";
 
     @BindView(R.id.btn_playall)
     TextView btnPlayAll;
@@ -50,10 +56,14 @@ public class ListMusicFragment extends Fragment {
     ListMusicAdapter musicAdapter;
 
     ListMusicAdapter.OnLongClickListener onLongClickListener;
-    ListMusicAdapter.OnClickListener  onClickListener;
+    ListMusicAdapter.OnClickListener onClickListener;
 
     ArrayList<Song> songs = new ArrayList<>();
 
+    private int positionEdit;
+    boolean isRegister = false;
+
+    IntentFilter intentFilter = new IntentFilter();
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -67,32 +77,53 @@ public class ListMusicFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        if(!isRegister){
+            isRegister = true;
+            getContext().registerReceiver(broadcastReceiver,intentFilter );
+        }
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        if(isRegister){
+            isRegister=false;
+            getContext().unregisterReceiver(broadcastReceiver);
+        }
+        super.onStop();
+    }
+
     private void init() {
+        intentFilter.addAction(actionNotify);
+
         onLongClickListener = (view, posion) -> {
             ShowLog.logVar("position long in frag", posion);
             showBottomMenu(true);
         };
-        onClickListener = (view,position,numSelect, checkList )->{
-            if(numSelect == 1){
+        onClickListener = (view, position, numSelect, checkList) -> {
+            if (numSelect == 1) {
                 btnEdit.setVisibility(View.VISIBLE);
-            }else {
+                positionEdit = position;
+            } else {
                 btnEdit.setVisibility(View.GONE);
             }
             songs.clear();
-            for(int i=0;i<Instance.songList.size();i++){
-                if(checkList.get(i)){
+            for (int i = 0; i < Instance.songList.size(); i++) {
+                if (checkList.get(i)) {
                     //songs.add(Instance.songList.get(i).getId());
                     songs.add(Instance.songList.get(i));
                 }
             }
         };
-        musicAdapter = new ListMusicAdapter(Instance.baseSong, getContext(), onLongClickListener,onClickListener);
+        musicAdapter = new ListMusicAdapter(Instance.baseSong, getContext(), onLongClickListener, onClickListener);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerSong.setLayoutManager(layoutManager);
         recyclerSong.setAdapter(musicAdapter);
 
-        if(musicAdapter.getItemCount()<1){
+        if (musicAdapter.getItemCount() < 1) {
             btnPlayAll.setVisibility(View.GONE);
         }
 
@@ -113,7 +144,7 @@ public class ListMusicFragment extends Fragment {
     }
 
     private void setClick() {
-        btnPlayAll.setOnClickListener(v->{
+        btnPlayAll.setOnClickListener(v -> {
             SetListPlay.playAll();
 
             Intent intent = new Intent(getContext(), ForegroundService.class);
@@ -129,10 +160,10 @@ public class ListMusicFragment extends Fragment {
 //            ShowPlaylistDialog.newInstance(ArrayUtils.toPrimitive(idsArr))
 //                    .show(getActivity().getSupportFragmentManager(),"ls" );
 
-            ShowLog.logInfo("add to pp",null );
+            ShowLog.logInfo("add to pp", null);
 
             ShowPlaylistDialog.newInstance(songs)
-                    .show(getActivity().getSupportFragmentManager(),"xx" );
+                    .show(getActivity().getSupportFragmentManager(), "xx");
 
             musicAdapter.callAddToPlaylist();
         });
@@ -141,12 +172,26 @@ public class ListMusicFragment extends Fragment {
             showBottomMenu(false);
         });
         btnEdit.setOnClickListener(v -> {
-            musicAdapter.callEdit();
+            //musicAdapter.callEdit();
+            Song song = Instance.baseSong.get(positionEdit);
+            ShowDialogEditSong.newInstance(song,positionEdit)
+                    .show(getFragmentManager(), "a");
+
+            musicAdapter.callApply();
+            showBottomMenu(false);
         });
         btnRemove.setOnClickListener(v -> {
             musicAdapter.callRemove();
         });
     }
 
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(actionNotify)){
+                musicAdapter.notifyDataSetChanged();
+            }
+        }
+    };
 
 }
