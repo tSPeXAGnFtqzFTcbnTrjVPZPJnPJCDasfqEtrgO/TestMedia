@@ -18,12 +18,16 @@ import android.view.ViewGroup;
 
 import com.example.phamngocan.testmediaapp.DetailPlaylistActivity;
 import com.example.phamngocan.testmediaapp.Instance;
+import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.PlaylistFragmentAdapter;
+import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
 import com.example.phamngocan.testmediaapp.dialog.ShowRenamePlaylistDialog;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
+import com.example.phamngocan.testmediaapp.services.ForegroundService;
 import com.example.phamngocan.testmediaapp.utils.AndtUtils;
+import com.example.phamngocan.testmediaapp.utils.SetListPlay;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,7 +88,14 @@ public class PlayListFragment extends Fragment {
         onClickMenu = (menuId, playlistId,position) -> {
             switch (menuId){
                 case R.id.menu_play:{
-                    ShowLog.logInfo("menu click","play" );
+                    SetListPlay.playPlaylist(position);
+
+                    Intent intent = new Intent(getContext(), ForegroundService.class);
+                    intent.putExtra(ForegroundService.POS_KEY, 0);
+                    intent.setAction(Action.START_FORE.getName());
+                    getContext().startService(intent);
+
+                    startActivity(new Intent(getContext(), PlayerActivity.class));
                     break;
                 }
                 case R.id.menu_remove:{

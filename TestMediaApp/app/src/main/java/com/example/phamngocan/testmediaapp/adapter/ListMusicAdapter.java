@@ -114,6 +114,9 @@ public class ListMusicAdapter extends RecyclerView.Adapter<ListMusicAdapter.Hold
             super(itemView);
             ButterKnife.bind(this, itemView);
 
+            txtvName.setSelected(true);
+            txtvArtist.setSelected(true);
+
             itemView.setTag(getLayoutPosition());
 
             checkBox.setClickable(false);
