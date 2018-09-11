@@ -5,4 +5,6 @@
     <dimen name="artist">13sp</dimen>
     <dimen name="margin_item">2dp</dimen>
     <dimen name="padding_icon">2dp</dimen>
+    <dimen name="margin_playall">5dp</dimen>
+    <dimen name="appbar_height">40dp</dimen>
 </resources>

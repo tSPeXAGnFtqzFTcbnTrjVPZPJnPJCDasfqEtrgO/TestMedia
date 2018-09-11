@@ -73,7 +73,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         TextView txtvName;
         public Holder(View itemView) {
             super(itemView);
-            txtvName = itemView.findViewById(R.id.item_name);
+            txtvName = itemView.findViewById(R.id.txtv_name);
             txtvName.setSelected(true);
 
             itemView.setOnClickListener(v -> {
