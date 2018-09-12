@@ -168,7 +168,7 @@ public class PlayerActivity extends AppCompatActivity {
                 btnShuffle.setImageResource(R.drawable.ic_shuffle_unselected);
             }
             if (isRepeat) {
-                btnRepeat.setImageResource(R.drawable.ic_repeat_selected);
+                btnRepeat.setImageResource(R.drawable.ic_repeat_selected_one);
             } else {
                 btnRepeat.setImageResource(R.drawable.ic_repeat_unselected);
             }
