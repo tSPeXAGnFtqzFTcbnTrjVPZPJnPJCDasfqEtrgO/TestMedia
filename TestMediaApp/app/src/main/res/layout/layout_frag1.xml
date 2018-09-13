@@ -19,6 +19,7 @@
         android:id="@+id/txtv_name"
         android:text="aaaaaaagg"
         android:textSize="30sp"
+        android:paddingLeft="10dp"
 
         android:singleLine="true"
         android:ellipsize="marquee"
@@ -35,6 +36,8 @@
     <TextView
         android:id="@+id/txtv_artist"
         android:text="aaaaaaaaaa"
+        android:paddingLeft="10dp"
+
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -8,9 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.phamngocan.testmediaapp.DetailPlaylistActivity;
+import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
@@ -78,6 +80,12 @@ public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlay
         holder.txtvName.setText(GetSongName.getSongName(mSongs.get(position)));
         holder.txtvArtist.setText(mSongs.get(position).getArtistName());
 
+        if(Instance.mapImageAlbum.containsKey(mSongs.get(position).getAlbumId())){
+            holder.imgAlbum.setImageBitmap(Instance.mapImageAlbum.get(mSongs.get(position).getAlbumId()));
+        }else{
+            holder.imgAlbum.setImageResource(R.drawable.ic_default_music);
+        }
+
         if (isSelect) {
             ShowLog.logVar("check", "" + mSongs.size() + "_" + checkList.size());
             ShowLog.logVar("check", "" + mSongs.get(position).getNameEn() + "_" + checkList.get(position));
@@ -103,6 +111,8 @@ public class ListMusicPlaylistAdapter extends RecyclerView.Adapter<ListMusicPlay
         TextView txtvName;
         @BindView(R.id.txtv_artist)
         TextView txtvArtist;
+        @BindView(R.id.img_album)
+        ImageView imgAlbum;
 
 
         Holder(View itemView) {

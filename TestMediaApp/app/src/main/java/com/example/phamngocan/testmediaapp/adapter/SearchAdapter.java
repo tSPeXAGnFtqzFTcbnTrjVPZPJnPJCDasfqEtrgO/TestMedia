@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
+import com.example.phamngocan.testmediaapp.adapter.helper.ItemTouchHelperAdapter;
+import com.example.phamngocan.testmediaapp.adapter.helper.ItemTouchHelperViewHolder;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.function.Kmp;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
-public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> implements Filterable{
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> implements Filterable, ItemTouchHelperAdapter {
 
     ArrayList<Song> songs;
     ArrayList<Song> baseSongs;
@@ -35,6 +37,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     boolean isShuffle = false;
 
     public SearchAdapter(ArrayList<Song> songs, Context context) {
+
         this.songs = songs;
         this.baseSongs = songs;
         this.context = context;
@@ -56,6 +59,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         }else{
             holder.txtvName.setText(songs.get(position).getNameEn());
         }
+//        holder.itemView.setBackgroundResource(R.drawable.background_item_music);
+
+
     }
 
     @Override
@@ -68,7 +74,43 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         return itemFilter;
     }
 
-    class Holder extends RecyclerView.ViewHolder{
+    @Override
+    public boolean onItemMove(int from, int to) {
+        if (from < to) {
+            for (int i = from; i < to; i++) {
+                Collections.swap(songs, i, i + 1);
+            }
+        } else {
+            for (int i = from; i > to; i--) {
+                Collections.swap(songs, i, i - 1);
+            }
+        }
+
+        notifyItemMoved(from, to);
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        songs.remove(position);
+        notifyItemRemoved(position);
+        notifyDataSetChanged();
+    }
+
+    class Holder extends RecyclerView.ViewHolder  implements ItemTouchHelperViewHolder{
+
+
+        @Override
+        public void onItemSelected() {
+            ShowLog.logInfo("adaptr","itemselect" );
+            //itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            ShowLog.logInfo("adaptr","itemclear" );
+            itemView.setBackgroundResource(R.drawable.background_item_music);
+        }
 
         TextView txtvName;
         public Holder(View itemView) {
@@ -93,6 +135,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
             });
 
         }
+
     }
 
     private class ItemFilter extends Filter{
@@ -148,4 +191,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         Instance.songShuffleList.addAll(songs);
         notifyDataSetChanged();
     }
+
+
 }

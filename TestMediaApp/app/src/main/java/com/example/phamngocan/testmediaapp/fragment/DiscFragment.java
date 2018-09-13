@@ -17,7 +17,6 @@ import com.example.phamngocan.testmediaapp.Animation.CustomAnimation;
 import com.example.phamngocan.testmediaapp.Instance;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
-import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.services.ForegroundService;
 
 import butterknife.BindView;
@@ -86,18 +85,11 @@ public class DiscFragment extends Fragment {
                 title = intent.getStringExtra(ForegroundService.NAME_SONG);
                 artist = intent.getStringExtra(ForegroundService.NAME_ARTIST);
 
-
-                ShowLog.logInfo("recieved",albumId + "_" + prevId+"_"+
-                        Instance.mapImageAlbum.containsKey(albumId));
-
                 if(albumId!=prevId){
-
-                    ShowLog.logInfo("received","change " +albumId);
                     if(Instance.mapImageAlbum.containsKey(albumId)){
                         imageView.setImageBitmap(Instance.mapImageAlbum.get(albumId));
 
                     }else{
-                        ShowLog.logInfo("img disc",null );
                         imageView.setImageResource(R.drawable.ic_disc);
                     }
 
