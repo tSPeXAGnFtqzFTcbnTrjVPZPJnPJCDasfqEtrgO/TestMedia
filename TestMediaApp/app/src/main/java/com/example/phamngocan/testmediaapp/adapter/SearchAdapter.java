@@ -2,6 +2,7 @@ package com.example.phamngocan.testmediaapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> implements Filterable, ItemTouchHelperAdapter {
 
     ArrayList<Song> songs;
@@ -33,6 +37,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     ArrayList<Song> shuffleSongs;
     Context context;
     ItemFilter itemFilter = new ItemFilter();
+    int curPlay = -1;
 
     boolean isShuffle = false;
 
@@ -47,19 +52,25 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.item_search,parent,false );
+        View view = inflater.inflate(R.layout.item_search, parent, false);
 
         return new Holder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
-        if(Locale.getDefault().getLanguage().equals("vi")){
+        if (Locale.getDefault().getLanguage().equals("vi")) {
             holder.txtvName.setText(songs.get(position).getNameVi());
-        }else{
+        } else {
             holder.txtvName.setText(songs.get(position).getNameEn());
         }
-//        holder.itemView.setBackgroundResource(R.drawable.background_item_music);
+        holder.txtvArtist.setText(songs.get(position).getArtistName());
+
+        if (position != curPlay) {
+            holder.itemView.setBackgroundResource(R.drawable.background_item_music);
+        } else {
+            holder.itemView.setBackgroundColor(Color.parseColor("#ffd000"));
+        }
 
 
     }
@@ -97,40 +108,45 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         notifyDataSetChanged();
     }
 
-    class Holder extends RecyclerView.ViewHolder  implements ItemTouchHelperViewHolder{
+    class Holder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
 
         @Override
         public void onItemSelected() {
-            ShowLog.logInfo("adaptr","itemselect" );
+            ShowLog.logInfo("adaptr", "itemselect");
             //itemView.setBackgroundColor(Color.LTGRAY);
         }
 
         @Override
         public void onItemClear() {
-            ShowLog.logInfo("adaptr","itemclear" );
-            itemView.setBackgroundResource(R.drawable.background_item_music);
+            ShowLog.logInfo("adaptr", "itemclear");
+            //itemView.setBackgroundResource(R.drawable.background_item_music);
         }
 
+        @BindView(R.id.txtv_name)
         TextView txtvName;
+        @BindView(R.id.txtv_artist)
+        TextView txtvArtist;
+
         public Holder(View itemView) {
             super(itemView);
-            txtvName = itemView.findViewById(R.id.txtv_name);
+            ButterKnife.bind(this, itemView);
             txtvName.setSelected(true);
+            txtvArtist.setSelected(true);
 
             itemView.setOnClickListener(v -> {
 
                 int pos = getLayoutPosition();
                 int index = songs.get(pos).getPosition();
 
-                ShowLog.logInfo("search adapter", songs.size()+"_"+index);
+                ShowLog.logInfo("search adapter", songs.size() + "_" + index);
 
-                Intent intent  = new Intent(context, ForegroundService.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(ForegroundService.POS_KEY,pos);
+                Intent intent = new Intent(context, ForegroundService.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra(ForegroundService.POS_KEY, pos);
                 intent.setAction(Action.START_FORE.getName());
 
-                Log.d("AAA","recycler "+index );
+                Log.d("AAA", "recycler " + index);
                 context.startService(intent);
             });
 
@@ -138,18 +154,18 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
 
     }
 
-    private class ItemFilter extends Filter{
+    private class ItemFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
-            if(charSequence.toString().trim().equals("")){
+            if (charSequence.toString().trim().equals("")) {
                 return null;
             }
             FilterResults results = new FilterResults();
             ArrayList<Song> nlist = new ArrayList<>();
 
-            for(int i = 0; i< baseSongs.size(); i++){
-                if(Kmp.isMatch(baseSongs.get(i).getNameSearch(),charSequence.toString() )){
+            for (int i = 0; i < baseSongs.size(); i++) {
+                if (Kmp.isMatch(baseSongs.get(i).getNameSearch(), charSequence.toString())) {
                     nlist.add(baseSongs.get(i));
                 }
             }
@@ -160,16 +176,24 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            if(filterResults == null){
+            if (filterResults == null) {
                 songs = isShuffle ? shuffleSongs : baseSongs;
-            }else{
+            } else {
                 songs = (ArrayList<Song>) filterResults.values;
             }
             notifyDataSetChanged();
         }
     }
 
-    public void shuffle(boolean isShuffle){
+
+    public void setCurPlay(int curPlay) {
+        if (this.curPlay != curPlay) {
+            notifyDataSetChanged();
+            this.curPlay = curPlay;
+        }
+    }
+
+    public void shuffle(boolean isShuffle) {
 
         this.isShuffle = isShuffle;
 

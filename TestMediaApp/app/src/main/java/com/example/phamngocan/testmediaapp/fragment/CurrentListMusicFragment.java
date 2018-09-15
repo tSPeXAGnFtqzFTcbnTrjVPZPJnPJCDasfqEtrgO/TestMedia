@@ -49,9 +49,9 @@ public class CurrentListMusicFragment extends Fragment {
 
 
     Context mContext;
-    int pos;
+    int pos = -1,prevPos;
     boolean isShuffle = false;
-
+    boolean prevShuffle;
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -156,16 +156,18 @@ public class CurrentListMusicFragment extends Fragment {
                 }
 
             } else if (action.equals(ActionBroadCast.CURSEEK.getName())) {
-                boolean prevShuffle = isShuffle;
+                 prevShuffle = isShuffle;
                 isShuffle = intent.getBooleanExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
                 if(prevShuffle!=isShuffle){
                     adapterSearch.shuffle(isShuffle);
                 }
 
-                int t = intent.getIntExtra(ForegroundService.SONG_ID, pos);
-                if (t != pos) {
-                    pos = t;
+                prevPos = intent.getIntExtra(ForegroundService.SONG_ID, pos);
+                if (prevPos != pos) {
+                    pos = prevPos;
+                    adapterSearch.setCurPlay(pos);
                     if(pos<adapterSearch.getItemCount()){
+                        ShowLog.logInfo("cur music fm scrolling",pos);
                         listSearch.scrollToPosition(pos);
                     }
                 }
