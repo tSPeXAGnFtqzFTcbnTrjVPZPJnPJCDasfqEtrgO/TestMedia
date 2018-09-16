@@ -49,9 +49,11 @@ public class CurrentListMusicFragment extends Fragment {
 
 
     Context mContext;
-    int pos = -1,prevPos;
+    long id = -1, prevId = -1;
     boolean isShuffle = false;
     boolean prevShuffle;
+    boolean isRegister = false;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -61,19 +63,19 @@ public class CurrentListMusicFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_current_list_fragment,container,false );
-        ButterKnife.bind(this,view);
+        View view = inflater.inflate(R.layout.layout_current_list_fragment, container, false);
+        ButterKnife.bind(this, view);
         init();
         setUpSearch();
         return view;
     }
 
 
-    private void  init(){
+    private void init() {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        adapterSearch = new SearchAdapter(Instance.songList,getContext());
+        adapterSearch = new SearchAdapter(Instance.songList, getContext());
         listSearch.setLayoutManager(layoutManager);
         listSearch.setAdapter(adapterSearch);
 
@@ -83,9 +85,9 @@ public class CurrentListMusicFragment extends Fragment {
 
     }
 
-    private void setUpSearch(){
+    private void setUpSearch() {
         RxSearch.fromSearchView(searchView)
-                .debounce(300, TimeUnit.MILLISECONDS )
+                .debounce(300, TimeUnit.MILLISECONDS)
                 //.filter(s -> !s.isEmpty())
                 .distinctUntilChanged()
                 .switchMap((Function<String, ObservableSource<String>>) s -> Observable.just(s))
@@ -110,7 +112,7 @@ public class CurrentListMusicFragment extends Fragment {
 
                     @Override
                     public void onComplete() {
-                        ShowLog.logInfo("searchview","complete" );
+                        ShowLog.logInfo("searchview", "complete");
                     }
                 });
     }
@@ -118,23 +120,31 @@ public class CurrentListMusicFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        register();
+        if (!isRegister) {
+            register();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        unregister();
+        if (isRegister) {
+            unregister();
+        }
     }
 
-    private void register(){
+    private void register() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ActionBroadCast.UPDATE_LIST_SHUFFLE.getName());
         intentFilter.addAction(ActionBroadCast.CURSEEK.getName());
-        mContext.registerReceiver(broadcastReceiver,intentFilter );
+        mContext.registerReceiver(broadcastReceiver, intentFilter);
+
+        isRegister=true;
     }
-    private void unregister(){
+
+    private void unregister() {
         mContext.unregisterReceiver(broadcastReceiver);
+        isRegister = false;
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -149,26 +159,28 @@ public class CurrentListMusicFragment extends Fragment {
                 boolean prevShuffle = isShuffle;
                 isShuffle = intent.getBooleanExtra(PlayerActivity.UPDATE_SHUFFLE_KEY, isShuffle);
                 if (isShuffle != prevShuffle) {
-                    ShowLog.logInfo("compare",isShuffle+" " + prevShuffle );
+                    ShowLog.logInfo("compare", isShuffle + " " + prevShuffle);
                     adapterSearch.shuffle(isShuffle);
                     searchView.setQuery("", false);
                     searchView.setIconified(true);
                 }
 
             } else if (action.equals(ActionBroadCast.CURSEEK.getName())) {
-                 prevShuffle = isShuffle;
+                prevShuffle = isShuffle;
                 isShuffle = intent.getBooleanExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
-                if(prevShuffle!=isShuffle){
+                if (prevShuffle != isShuffle) {
                     adapterSearch.shuffle(isShuffle);
                 }
 
-                prevPos = intent.getIntExtra(ForegroundService.SONG_ID, pos);
-                if (prevPos != pos) {
-                    pos = prevPos;
-                    adapterSearch.setCurPlay(pos);
-                    if(pos<adapterSearch.getItemCount()){
-                        ShowLog.logInfo("cur music fm scrolling",pos);
-                        listSearch.scrollToPosition(pos);
+                prevId = id;
+                id = intent.getLongExtra(ForegroundService.SONG_ID, id);
+                ShowLog.logInfo("current list music fm", prevId + "_" + id+"_"+isShuffle);
+                if (prevId != id) {
+
+                    adapterSearch.setCurPlayId(id);
+                    if (id < adapterSearch.getItemCount()) {
+                        ShowLog.logInfo("cur music fm scrolling", id);
+                        //listSearch.scrollToPosition(id);
                     }
                 }
             }

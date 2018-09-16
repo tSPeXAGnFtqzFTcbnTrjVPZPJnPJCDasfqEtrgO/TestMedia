@@ -37,7 +37,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     ArrayList<Song> shuffleSongs;
     Context context;
     ItemFilter itemFilter = new ItemFilter();
-    int curPlay = -1;
+    long curPlayId = -1;
 
     boolean isShuffle = false;
 
@@ -66,7 +66,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
         }
         holder.txtvArtist.setText(songs.get(position).getArtistName());
 
-        if (position != curPlay) {
+        ShowLog.logInfo("search apt",songs.get(position).getId()+"_"+curPlayId );
+        if (songs.get(position).getId() != curPlayId) {
             holder.itemView.setBackgroundResource(R.drawable.background_item_music);
         } else {
             holder.itemView.setBackgroundColor(Color.parseColor("#ffd000"));
@@ -186,10 +187,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> im
     }
 
 
-    public void setCurPlay(int curPlay) {
-        if (this.curPlay != curPlay) {
+    public void setCurPlayId(long curPlayId) {
+        if (this.curPlayId != curPlayId) {
             notifyDataSetChanged();
-            this.curPlay = curPlay;
+            this.curPlayId = curPlayId;
         }
     }
 
