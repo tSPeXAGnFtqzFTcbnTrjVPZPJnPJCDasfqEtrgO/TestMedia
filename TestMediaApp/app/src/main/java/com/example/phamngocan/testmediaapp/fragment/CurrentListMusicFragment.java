@@ -21,6 +21,7 @@ import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.adapter.SearchAdapter;
 import com.example.phamngocan.testmediaapp.adapter.helper.SimpleItemTouchHelperCallback;
+import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
 import com.example.phamngocan.testmediaapp.function.RxSearch;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
@@ -47,9 +48,11 @@ public class CurrentListMusicFragment extends Fragment {
     @BindView(R.id.searchView)
     SearchView searchView;
 
+    Intent shuffleIntent;
 
     Context mContext;
     long id = -1, prevId = -1;
+    int pos = -1,prevPos = -1;
     boolean isShuffle = false;
     boolean prevShuffle;
     boolean isRegister = false;
@@ -67,6 +70,8 @@ public class CurrentListMusicFragment extends Fragment {
         ButterKnife.bind(this, view);
         init();
         setUpSearch();
+        setUpIntent();
+
         return view;
     }
 
@@ -163,6 +168,10 @@ public class CurrentListMusicFragment extends Fragment {
                     adapterSearch.shuffle(isShuffle);
                     searchView.setQuery("", false);
                     searchView.setIconified(true);
+
+                    shuffleIntent.putExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
+                    getContext().startService(shuffleIntent);
+
                 }
 
             } else if (action.equals(ActionBroadCast.CURSEEK.getName())) {
@@ -183,7 +192,18 @@ public class CurrentListMusicFragment extends Fragment {
                         //listSearch.scrollToPosition(id);
                     }
                 }
+
+                prevPos = pos;
+                pos  = intent.getIntExtra(ForegroundService.POS_KEY,pos );
+                if(pos!=prevPos && pos>-1 && pos <Instance.songList.size()){
+
+                    listSearch.smoothScrollToPosition(pos);
+                }
             }
         }
     };
+    private void setUpIntent(){
+        shuffleIntent = new Intent(mContext, ForegroundService.class);
+        shuffleIntent.setAction(Action.SHUFFLE.getName());
+    }
 }

@@ -22,6 +22,7 @@ import com.example.phamngocan.testmediaapp.PlayerActivity;
 import com.example.phamngocan.testmediaapp.R;
 import com.example.phamngocan.testmediaapp.constant.Action;
 import com.example.phamngocan.testmediaapp.constant.ActionBroadCast;
+import com.example.phamngocan.testmediaapp.function.FindSong;
 import com.example.phamngocan.testmediaapp.function.ShowLog;
 import com.example.phamngocan.testmediaapp.model.Song;
 
@@ -193,6 +194,14 @@ public class ForegroundService extends Service {
         } else if (action.equals(Action.SHUFFLE.getName())) {
             isShuffle = intent.getBooleanExtra(SHUFFLE_KEY, isShuffle);
             ShowLog.logInfo("shuffle", isShuffle);
+
+            if(currentSong!=null){
+                if(isShuffle) {
+                    mPos = FindSong.findPositionById(currentSong.getId(), Instance.songShuffleList);
+                }else{
+                    mPos = FindSong.findPositionById(currentSong.getId(), Instance.songList);
+                }
+            }
         }
 
         return START_STICKY;
@@ -399,6 +408,7 @@ public class ForegroundService extends Service {
                     if (mediaPlayer != null) {
                         intentUpdateBroadcast.putExtra(REPEAT_KEY, isRepeat);
                         intentUpdateBroadcast.putExtra(SHUFFLE_KEY, isShuffle);
+                        intentUpdateBroadcast.putExtra(POS_KEY,mPos );
                         intentUpdateBroadcast.putExtra(SONG_ID, currentSong.getId());
                         intentUpdateBroadcast.putExtra(NAME_SONG, currentSong.getNameVi());
                         intentUpdateBroadcast.putExtra(NAME_ARTIST, currentSong.getArtistName());
@@ -409,7 +419,6 @@ public class ForegroundService extends Service {
                         } catch (IllegalStateException e) {
                             ShowLog.logInfo("error", e.getMessage());
                         }
-                        ShowLog.logInfo("sending id",currentSong.getId() );
                         sendBroadcast(intentUpdateBroadcast);
                     }
                 });
