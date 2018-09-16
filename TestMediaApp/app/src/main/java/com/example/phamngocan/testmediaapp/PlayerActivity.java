@@ -32,6 +32,19 @@ import butterknife.ButterKnife;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    public static enum Repeat {
+        NONE,
+        REPEAT_ALL,
+        REPEAT_ONE;
+
+        public int getType() {
+            return this.ordinal();
+        }
+        public String getName(){
+            return this.name();
+        }
+    }
+
     public static final String UPDATE_SHUFFLE_KEY = "UPDATE_LIST_SHUFFLE";
 
     @BindView(R.id.txtv_name)
@@ -79,6 +92,8 @@ public class PlayerActivity extends AppCompatActivity {
     boolean isShuffle = false;
     boolean isRepeat = false;
     boolean isStop = false;
+
+    int typeRepeat = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +176,7 @@ public class PlayerActivity extends AppCompatActivity {
             txtvArtist.setText(nameArtist);
         }
 
-        if(wasKilled) {
+        if (wasKilled) {
             if (isShuffle) {
                 btnShuffle.setImageResource(R.drawable.ic_shuffle_selected);
             } else {
@@ -229,7 +244,7 @@ public class PlayerActivity extends AppCompatActivity {
                 isShuffle = intent.getBooleanExtra(ForegroundService.SHUFFLE_KEY, isShuffle);
                 isRepeat = intent.getBooleanExtra(ForegroundService.REPEAT_KEY, isRepeat);
 
-                update(prevRepeat!=isRepeat || prevShuffle != isShuffle);
+                update(prevRepeat != isRepeat || prevShuffle != isShuffle);
             } else if (action.equals(ActionBroadCast.PLAY.getName())) {
                 btnPlay.setImageResource(R.drawable.ic_pause);
                 isPlaying = true;
@@ -313,15 +328,23 @@ public class PlayerActivity extends AppCompatActivity {
             startService(shuffleIntent);
         });
         btnRepeat.setOnClickListener(v -> {
-            isRepeat = !isRepeat;
+            //isRepeat = !isRepeat;
+
+            typeRepeat = (typeRepeat + 1) % 3;
+
+            isRepeat = (typeRepeat != 0);
 
             if (isRepeat) {
-                btnRepeat.setImageResource(R.drawable.ic_repeat_selected);
+                if (typeRepeat == Repeat.REPEAT_ALL.getType()) {
+                    btnRepeat.setImageResource(R.drawable.ic_repeat_selected);
+                } else {
+                    btnRepeat.setImageResource(R.drawable.ic_repeat_one);
+                }
             } else {
                 btnRepeat.setImageResource(R.drawable.ic_repeat_unselected);
             }
 
-            repeatIntent.putExtra(ForegroundService.REPEAT_KEY, isRepeat);
+            repeatIntent.putExtra(ForegroundService.REPEAT_KEY, typeRepeat);
             startService(repeatIntent);
         });
     }

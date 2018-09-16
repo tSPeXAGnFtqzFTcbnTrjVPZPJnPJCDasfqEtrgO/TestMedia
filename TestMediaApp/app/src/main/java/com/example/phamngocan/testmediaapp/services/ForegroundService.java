@@ -50,10 +50,11 @@ public class ForegroundService extends Service {
     public static final int REQUEST_CODE = 123;
     private final String CHANNEL_ID = "111";
     private final int FORE_ID = 321;
-    private static int pos;
+    private static int mPos;
 
     private boolean isShuffle = false;
     private boolean isRepeat = false;
+    private int typeRepeat = 0;
 
     public boolean isStarting = false;
 
@@ -115,15 +116,15 @@ public class ForegroundService extends Service {
         }
 
         String action = intent.getAction();
-        pos = intent.getIntExtra(POS_KEY, pos);
-        ShowLog.logInfo("fore pos:  ", pos);
+        mPos = intent.getIntExtra(POS_KEY, mPos);
+        ShowLog.logInfo("fore mPos:  ", mPos);
 
         ShowLog.logInfo("action", action);
 
         if (action.compareTo(Action.START_FORE.getName()) == 0) {
 
 
-            play(pos);
+            play(mPos);
             startForeground(FORE_ID, notifiCustom);
 
 
@@ -162,19 +163,19 @@ public class ForegroundService extends Service {
 
         } else if (action.equals(Action.NEXT.getName())) {
             Log.d("AAA", "NEXT");
-            pos = (pos + 1) % Instance.songList.size();
-            play(pos);
+            mPos = (mPos + 1) % Instance.songList.size();
+            play(mPos);
 
             //sendBroadcast(intentNextBroadcast);
 
 
         } else if (action.equals(Action.PREVIOUS.getName())) {
             Log.d("AAA", "PREV");
-            if (pos == 0) {
-                pos = Instance.songList.size();
+            if (mPos == 0) {
+                mPos = Instance.songList.size();
             }
-            pos--;
-            play(pos);
+            mPos--;
+            play(mPos);
 
             //sendBroadcast(intentPrevBroadcast);
 
@@ -185,7 +186,9 @@ public class ForegroundService extends Service {
                 mediaPlayer.seekTo(progress);
             }
         } else if (action.equals(Action.REPEAT.getName())) {
-            isRepeat = intent.getBooleanExtra(REPEAT_KEY, isRepeat);
+            //isRepeat = intent.getBooleanExtra(REPEAT_KEY, isRepeat);
+            typeRepeat = intent.getIntExtra(REPEAT_KEY, typeRepeat);
+            isRepeat = (typeRepeat != 0);
             ShowLog.logInfo("repeat", isRepeat);
         } else if (action.equals(Action.SHUFFLE.getName())) {
             isShuffle = intent.getBooleanExtra(SHUFFLE_KEY, isShuffle);
@@ -213,26 +216,42 @@ public class ForegroundService extends Service {
 
         }
 
+        mPos = pos;
 
         ShowLog.logInfo("path", isShuffle ? Instance.songShuffleList.get(pos).getPath() :
                 Instance.songList.get(pos).getPath());
         int t = pos;
+        if(isEnd && t == 0 && !isRepeat){
+            stop();
+
+            sendBroadcast(intentStopBroadcast);
+            disposable.dispose();
+            stopSelf();
+
+        }
         do {
             ShowLog.logInfo("fore", Instance.songList.get(pos).getNameVi());
 
             if (isEnd) {//repeat if end of currentSong (false when event next-prev-start
-                if (isRepeat) {
-                    if (pos == 0) {
-                        pos = Instance.songList.size();
+
+                if (typeRepeat == PlayerActivity.Repeat.REPEAT_ONE.getType()) {
+                    if (mPos == 0) {
+                        mPos = Instance.songList.size();
                     }
-                    pos--;
+                    mPos--;
+                    mediaPlayer = MediaPlayer.create(this, Uri.parse(currentSong.getPath()));
+
+                    ShowLog.logInfo("fore",pos+"_"+ Instance.songList.get(pos).getNameVi());
+
+                    break;
                 }
             }
 
+
             if (isShuffle) {
-                currentSong = Instance.songShuffleList.get(pos);
+                currentSong = Instance.songShuffleList.get(mPos);
             } else {
-                currentSong = Instance.songList.get(pos);
+                currentSong = Instance.songList.get(mPos);
 
             }
             mediaPlayer = MediaPlayer.create(this, Uri.parse(currentSong.getPath()));
@@ -240,11 +259,11 @@ public class ForegroundService extends Service {
                 break;
             }
 
-            pos = (pos + 1) % Instance.songList.size();
+            mPos = (mPos + 1) % Instance.songList.size();
 
 
             ShowLog.logInfo("for mp", mediaPlayer);
-        } while (t != pos);
+        } while (t != mPos);
         if (mediaPlayer != null) {
 
             Log.d("a", "playing " + currentSong.getNameEn());
@@ -257,8 +276,8 @@ public class ForegroundService extends Service {
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    ForegroundService.pos = (ForegroundService.pos + 1) % Instance.songList.size();
-                    play(ForegroundService.pos, true);
+                    ForegroundService.mPos = (ForegroundService.mPos + 1) % Instance.songList.size();
+                    play(ForegroundService.mPos, true);
 
                 }
             });
@@ -380,16 +399,17 @@ public class ForegroundService extends Service {
                     if (mediaPlayer != null) {
                         intentUpdateBroadcast.putExtra(REPEAT_KEY, isRepeat);
                         intentUpdateBroadcast.putExtra(SHUFFLE_KEY, isShuffle);
-                        intentUpdateBroadcast.putExtra(SONG_ID, pos);
+                        intentUpdateBroadcast.putExtra(SONG_ID, mPos);
                         intentUpdateBroadcast.putExtra(NAME_SONG, currentSong.getNameVi());
                         intentUpdateBroadcast.putExtra(NAME_ARTIST, currentSong.getArtistName());
-                        intentUpdateBroadcast.putExtra(ALBUM_KEY,currentSong.getAlbumId() );
+                        intentUpdateBroadcast.putExtra(ALBUM_KEY, currentSong.getAlbumId());
                         try {
                             intentUpdateBroadcast.putExtra(CUR_TIME_KEY, mediaPlayer.getCurrentPosition());
                             intentUpdateBroadcast.putExtra(TOTAL_TIME_KEY, mediaPlayer.getDuration());
                         } catch (IllegalStateException e) {
                             ShowLog.logInfo("error", e.getMessage());
                         }
+                        ShowLog.logInfo("foresv mPos", mPos);
                         sendBroadcast(intentUpdateBroadcast);
                     }
                 });
