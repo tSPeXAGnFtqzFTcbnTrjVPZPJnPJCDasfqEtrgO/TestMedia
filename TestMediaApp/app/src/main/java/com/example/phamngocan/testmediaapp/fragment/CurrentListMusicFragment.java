@@ -183,7 +183,6 @@ public class CurrentListMusicFragment extends Fragment {
 
                 prevId = id;
                 id = intent.getLongExtra(ForegroundService.SONG_ID, id);
-                ShowLog.logInfo("current list music fm", prevId + "_" + id+"_"+isShuffle);
                 if (prevId != id) {
 
                     adapterSearch.setCurPlayId(id);
